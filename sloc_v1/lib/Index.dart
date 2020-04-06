@@ -25,9 +25,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             DrawerHeader(
               child: Text('Sloc',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18
                 ),
               ),
               decoration: BoxDecoration(
@@ -70,18 +70,23 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
 
       body: Container(
-        padding: EdgeInsets.all(32),
+        padding: EdgeInsets.fromLTRB(80, 30,80, 80),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Image.asset("imagens/quiva.png"),
-            FloatingActionButton(
-              child: Icon(
-                  Icons.search,
-                  color: Colors.white),
-              backgroundColor: Color(0xff315a7d),
-            ),
-          ]
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Image.asset("imagens/logoPreto.png",
+              ),
+
+              Padding(
+                padding: EdgeInsets.all(50),
+                child: FloatingActionButton(
+                  child: Icon(
+                      Icons.search,
+                      color: Colors.white),
+                  backgroundColor: Color(0xff315a7d),
+                ),
+              ),
+            ]
         ),
       ),
 
