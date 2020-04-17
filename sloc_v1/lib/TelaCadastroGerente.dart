@@ -2,9 +2,7 @@ import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:v1/dados/dbGerente.dart';
-import 'Index.dart';
 import 'entidades/gerente.dart';
 
 class TelaCadastroGerente extends StatefulWidget {
@@ -16,7 +14,6 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
 
   //Atributos
   //Atributos DB
-  Database _db;
   var _dbGerente = DbGerente();
 
   //Atributos Controladores
@@ -29,7 +26,6 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   //Alertas
 
   _erroCampoVazio(){
-    print("oii");
     showDialog(
         context: context,
         builder: (context){
@@ -124,6 +120,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
       }
     }
   }
+
   //Corpo
   @override
   Widget build(BuildContext context) {
@@ -134,7 +131,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
     backgroundColor: Color(0xff315a7d),
     ),
       body: Container(
-        padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
+        //padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
         child: ListView(
           children: <Widget>[
             Padding(
@@ -142,6 +139,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
               child: TextField(
                 controller: _nomeController,
                 keyboardType: TextInputType.text,
+                textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
                   prefixIcon: Icon(Icons.person),
                   labelText: "Nome",
@@ -203,28 +201,34 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
               ),
             ),
 
-            Padding(
-              padding: EdgeInsets.fromLTRB(10,10,10,0),
-              child: RaisedButton(
-                color: Colors.grey,
-                textColor: Colors.white,
-                child: Text("Cancelar"),
+            Row(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.fromLTRB(155, 0, 0, 0),
+                ),
 
-                onPressed: () => Navigator.pop(context),
-              ),
+                RaisedButton(
+                  color: Colors.grey,
+                  textColor: Colors.white,
+                  child: Text("Cancelar"),
+                  onPressed: () => Navigator.pop(context),
+                ),
+
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                ),
+
+                RaisedButton(
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  child: Text("Salvar"),
+                  onPressed: (){
+                    _cadastrarGerente();
+                  },
+                ),
+              ],
             ),
 
-            Padding(
-              padding: EdgeInsets.fromLTRB(10, 0,10,0),
-              child: RaisedButton(
-                color: Colors.green,
-                textColor: Colors.white,
-                child: Text("Salvar"),
-                onPressed: (){
-                  _cadastrarGerente();
-                },
-              ),
-            ),
             ],
           ),
       )

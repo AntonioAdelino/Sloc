@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:v1/TelaBuscarGerente.dart';
 import 'package:v1/TelaCadastroGerente.dart';
-import 'package:v1/TelaSecundaria.dart';
+import 'package:v1/TelaListarGerentes.dart';
 
 class TelaPrincipal extends StatefulWidget {
   @override
@@ -50,7 +51,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               },
             ),
             ListTile(
-              title: Text('Tela de teste',
+              title: Text('Buscar gerente',
                 style: TextStyle(
                     fontSize: 16
                 ),
@@ -59,11 +60,28 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => TelaSecundaria()
+                        builder: (context) => TelaBuscarGetente()
                     )
                 );
               },
             ),
+
+            ListTile(
+              title: Text('Listar gerentes',
+                style: TextStyle(
+                    fontSize: 16
+                ),
+              ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TelaListarGerentes()
+                    )
+                );
+              },
+            ),
+
           ],
         ),
       ),
@@ -93,3 +111,5 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     );
   }
 }
+
+

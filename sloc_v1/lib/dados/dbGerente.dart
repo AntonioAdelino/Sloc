@@ -53,4 +53,20 @@ class DbGerente {
     return id;
   }
 
+  listarGetentes() async {
+
+    var bancoDados = await db;
+    String sql = "SELECT * FROM $nomeTabela ORDER BY id DESC";
+    List gerentes = await bancoDados.rawQuery(sql);
+    return gerentes;
+  }
+
+  buscarGerente(String gerenteNome) async {
+    var bancoDados = await db;
+    String sql = "SELECT * FROM $nomeTabela WHERE nome = '$gerenteNome'";
+    List gerentes = await bancoDados.rawQuery(sql);
+    print("\n\n"+gerentes.toString());
+    return gerentes;
+  }
+
 }

@@ -6,8 +6,17 @@ class Gerente {
   String _email;
   String _senha;
 
-  //construtor
+  //construtores
   Gerente(this._nome, this._cpf, this._email, this._senha);
+
+  Gerente.fromMap(Map map){
+    this.id = map["id"];
+    this.nome = map["nome"];
+    this.cpf = map["cpf"];
+    this.email = map["email"];
+    this.senha = map["senha"];
+
+  }
 
   //método para mapear os atributos
   Map toMap(){
