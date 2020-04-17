@@ -45,12 +45,27 @@ class DbGerente {
     }
   }
 
+  //CRUD
   Future<int> cadastrarGerente(Gerente gerente) async{
 
     var bancoDados = await db;
     print(bancoDados);
     int id = await bancoDados.insert(nomeTabela, gerente.toMap());
     return id;
+  }
+
+  Future<int> removerGerente( int id) async {
+
+    var bancoDados = await db;
+    return await bancoDados.delete(
+      nomeTabela,
+      where: "id = ?",
+      whereArgs: [id]
+    );
+
+
+
+
   }
 
   listarGetentes() async {
@@ -70,3 +85,4 @@ class DbGerente {
   }
 
 }
+//json estrutura de dados padrão

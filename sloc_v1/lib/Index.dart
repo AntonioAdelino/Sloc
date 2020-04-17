@@ -95,15 +95,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               Image.asset("imagens/logoPreto.png",
               ),
 
-              Padding(
-                padding: EdgeInsets.all(50),
-                child: FloatingActionButton(
-                  child: Icon(
-                      Icons.search,
-                      color: Colors.white),
-                  backgroundColor: Color(0xff315a7d),
-                ),
-              ),
+//              Padding(
+//                padding: EdgeInsets.all(50),
+//                child: FloatingActionButton(
+//                  child: Icon(
+//                      Icons.search,
+//                      color: Colors.white),
+//                  backgroundColor: Color(0xff315a7d),
+//                ),
+//              ),
             ]
         ),
       ),
