@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:v1/TelaBuscarGerente.dart';
 import 'package:v1/TelaCadastroGerente.dart';
-import 'package:v1/TelaListarGerentes.dart';
+
+import 'TelaSecundaria.dart';
 
 class TelaPrincipal extends StatefulWidget {
   @override
@@ -76,7 +77,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => TelaListarGerentes()
+                        builder: (context) => TelaSecundaria()
                     )
                 );
               },

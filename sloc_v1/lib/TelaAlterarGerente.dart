@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'entidades/gerente.dart';
 
 class TelaAlterarGerente extends StatefulWidget {
-  Gerente gerente;
+  TelaAlterarGerente({this.gerente});
+  var gerente;
   @override
   _TelaAlterarGerenteState createState() => _TelaAlterarGerenteState();
 }
@@ -102,6 +103,7 @@ class _TelaAlterarGerenteState extends State<TelaAlterarGerente> {
                     textColor: Colors.white,
                     child: Text("Salvar"),
                     onPressed: (){
+                      print(widget.gerente);
                      // _cadastrarGerente();
                     },
                   ),

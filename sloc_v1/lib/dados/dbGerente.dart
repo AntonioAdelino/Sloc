@@ -49,9 +49,23 @@ class DbGerente {
   Future<int> cadastrarGerente(Gerente gerente) async{
 
     var bancoDados = await db;
-    print(bancoDados);
     int id = await bancoDados.insert(nomeTabela, gerente.toMap());
     return id;
+  }
+
+  Future<int> alterarGerente(Gerente gerente) async{
+
+    var bancoDados = await db;
+    return await bancoDados.update(
+      nomeTabela,
+      gerente.toMap(),
+      where: "id = ?",
+      whereArgs: [gerente.id]
+
+    );
+
+
+
   }
 
   Future<int> removerGerente( int id) async {
@@ -62,10 +76,6 @@ class DbGerente {
       where: "id = ?",
       whereArgs: [id]
     );
-
-
-
-
   }
 
   listarGetentes() async {
@@ -78,7 +88,7 @@ class DbGerente {
 
   buscarGerente(String gerenteNome) async {
     var bancoDados = await db;
-    String sql = "SELECT * FROM $nomeTabela WHERE nome = '$gerenteNome'";
+    String sql = "SELECT * FROM $nomeTabela WHERE nome LIKE '%$gerenteNome%'";
     List gerentes = await bancoDados.rawQuery(sql);
     print("\n\n"+gerentes.toString());
     return gerentes;
