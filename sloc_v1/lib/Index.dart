@@ -67,21 +67,21 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               },
             ),
 
-            ListTile(
-              title: Text('Listar gerentes',
-                style: TextStyle(
-                    fontSize: 16
-                ),
-              ),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TelaSecundaria()
-                    )
-                );
-              },
-            ),
+//            ListTile(
+//              title: Text('TESTE',
+//                style: TextStyle(
+//                    fontSize: 16
+//                ),
+//              ),
+//              onTap: () {
+//                Navigator.push(
+//                    context,
+//                    MaterialPageRoute(
+//                        builder: (context) => TelaSecundaria()
+//                    )
+//                );
+//              },
+//            ),
 
           ],
         ),
