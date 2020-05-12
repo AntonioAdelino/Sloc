@@ -1,23 +1,23 @@
-import 'package:brasil_fields/brasil_fields.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:brasil_fields/formatter/cpf_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:v1/dados/dbGerente.dart';
-import 'entidades/gerente.dart';
+import 'package:v1/dados/dbVendedor.dart';
 
-class TelaCadastroGerente extends StatefulWidget {
+import 'entidades/gerente.dart';
+import 'entidades/vendedor.dart';
+class TelaCadastroVendedor extends StatefulWidget {
   @override
-  _TelaCadastroGerenteState createState() => _TelaCadastroGerenteState();
+  _TelaCadastroVendedorState createState() => _TelaCadastroVendedorState();
 }
 
-class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
+class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
 
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
 
   //Atributos DB
-  var _dbGerente = DbGerente();
+  var _dbVendedor = DbVendedor();
 
   //Atributos Form
   final _formKey = GlobalKey<FormState>();
@@ -30,7 +30,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _senhaController = TextEditingController();
   TextEditingController _confSenhaController = TextEditingController();
-
+  TextEditingController _idGerenteController = TextEditingController();
 
   //////////////////////////////////////////////////////////////////
   //                         VALIDAÇÕES                           //
@@ -93,7 +93,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   //                           ALERTAS                            //
   //////////////////////////////////////////////////////////////////
 
-  _gerenteCadastradoComSucesso(Gerente gerente){
+  _vendedorCadastradoComSucesso(Vendedor vendedor){
     showDialog(
         context: context,
         builder: (context){
@@ -101,7 +101,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
             title: Text("Cadastro realizado!",
               textAlign: TextAlign.center,
             ),
-            content: Text(gerente.nome +" foi cadastrado com sucesso"),
+            content: Text(vendedor.nome +" foi cadastrado com sucesso"),
             actions: <Widget>[
               FlatButton(
                 color: Colors.grey,
@@ -120,27 +120,36 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
 
-  _cadastrarGerente() async{
+
+
+  _cadastrarVendedor() async{
     String nome = _nomeController.text;
     String cpf = _cpfController.text;
     String email = _emailController.text;
     String senha = _senhaController.text;
     String confSenha = _confSenhaController.text;
+    int idGerente = int.parse(_idGerenteController.text);
 
-    Gerente gerente = Gerente(nome, cpf, email, senha);
-    int resultado = await _dbGerente.cadastrarGerente(gerente);
-    gerente.id = resultado;
+    Vendedor vendedor = Vendedor(nome, cpf, email, senha);
+    vendedor.idGerente = idGerente;
+    int resultado = await _dbVendedor.cadastrarVendedor(vendedor);
+    vendedor.id = resultado;
 
     if( resultado != null ){
-      _gerenteCadastradoComSucesso(gerente);
+      _vendedorCadastradoComSucesso(vendedor);
+      print("cadastradooooo: "+vendedor.id.toString());
     }
 
   }
 
+  //////////////////////////////////////////////////////////////////
+  //                           CORPO                              //
+  //////////////////////////////////////////////////////////////////
+
   _enviarFormulario() {
     if (_formKey.currentState.validate()) {
       // Sem erros na validação
-      _cadastrarGerente();
+      _cadastrarVendedor();
       _formKey.currentState.reset();
 
     } else {
@@ -151,15 +160,13 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
     }
   }
 
-  //////////////////////////////////////////////////////////////////
-  //                           CORPO                              //
-  //////////////////////////////////////////////////////////////////
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("Cadastrar Gerente"),
+          title: Text("Cadastrar Vendedor"),
           backgroundColor: Color(0xff315a7d),
         ),
         body: Container(
@@ -248,7 +255,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
                 ),
 
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10,0,10,20),
+                  padding: EdgeInsets.fromLTRB(10,0,10,0),
                   child: TextFormField(
                     controller: _confSenhaController,
                     keyboardType: TextInputType.text,
@@ -263,6 +270,18 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
                       confSenha = val;
                     },
 
+                  ),
+                ),
+
+                Padding(
+                  padding: EdgeInsets.fromLTRB(10,0,10,20),
+                  child: TextFormField(
+                    controller: _idGerenteController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.lock_outline),
+                      labelText: "Código do Gerente",
+                    ),
                   ),
                 ),
 
@@ -302,4 +321,3 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
     );
   }
 }
-

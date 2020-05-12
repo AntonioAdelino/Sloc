@@ -36,7 +36,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
   //////////////////////////////////////////////////////////////////
 
   String _validarNome(String value) {
-    String patttern = r'(^[a-zA-ZÀÁÇÈÉÊÌÍÎÑÒÓÔÕÙÚÛÝàáâãçèéêìíîðñòóôõùúûý]*$)';
+    String patttern = r'(^[a-zA-ZÀÁÇÈÉÊÌÍÎÑÒÓÔÕÙÚÛÝàáâãçèéêìíîðñòóôõùúûý\s]*$)';
     RegExp regExp = new RegExp(patttern);
     if (value.length <= 2) {
       return "Informe um nome válido";
@@ -417,15 +417,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
 
                               GestureDetector(
                                 onTap: (){
-
                                   _exibirTelaAlteracao(gerente: gerente);
-//                                Navigator.push(
-//                                    context,
-//                                    MaterialPageRoute(
-//                                      builder: (context) => exibirTelaAlteracao()
-//                                      //builder: (context) => TelaAlterarGerente()
-//                                    )
-//                                );
                                 },
                                 child: Padding(
                                   padding: EdgeInsets.only(right: 0),

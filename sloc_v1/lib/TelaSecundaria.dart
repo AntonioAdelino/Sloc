@@ -36,7 +36,7 @@ class _TelaSecundariaState extends State<TelaSecundaria> {
   //////////////////////////////////////////////////////////////////
 
   String _validarNome(String value) {
-    String patttern = r'(^[a-zA-ZÀÁÇÈÉÊÌÍÎÑÒÓÔÕÙÚÛÝàáâãçèéêìíîðñòóôõùúûý]*$)';
+    String patttern = r'(^[a-zA-ZÀÁÇÈÉÊÌÍÎÑÒÓÔÕÙÚÛÝàáâãçèéêìíîðñòóôõùúûý\s]*$)';
     RegExp regExp = new RegExp(patttern);
     if (value.length <= 2) {
       return "Informe um nome válido";

@@ -21,8 +21,13 @@ class DbGerente {
 
   //criar tabela gerentes
   _onCreate( Database db, int version) async {
-    String sql = "CREATE TABLE $nomeTabela (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR, cpf VARCHAR, email VARCHAR, senha VARCHAR)";
+    String sql = "CREATE TABLE $nomeTabela (id INTEGER PRIMARY KEY AUTOINCREMENT,"+
+        " nome VARCHAR, cpf VARCHAR, email VARCHAR, senha VARCHAR);";
     await db.execute(sql);
+
+    sql = "CREATE TABLE vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR, cpf VARCHAR, email VARCHAR, senha VARCHAR, idGerente INTERGER, CONSTRAINT vendedores_gerentes_FK FOREIGN KEY (idGerente) REFERENCES gerentes (id));";
+    await db.execute(sql);
+
   }
 
   //inicializar banco de dados
