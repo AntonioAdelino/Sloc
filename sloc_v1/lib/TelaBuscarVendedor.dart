@@ -9,7 +9,6 @@ class TelaBuscarVendedor extends StatefulWidget {
 }
 
 class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
-
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
@@ -30,7 +29,6 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
   var _dbVendedor = DbVendedor();
   List<Vendedor> _vendedorBusca = [];
 
-
   //////////////////////////////////////////////////////////////////
   //                         VALIDAÇÕES                           //
   //////////////////////////////////////////////////////////////////
@@ -45,24 +43,26 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     }
     return null;
   }
+
   String _validarCpf(String value) {
     if (value.length == 0) {
       return "Informe o CPF";
-    } else if(value.length != 14){
+    } else if (value.length != 14) {
       return "O CPF está incompleto";
     }
     return null;
   }
 
   String _validarEmail(String value) {
-    String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@'+
-        '((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))';
+    String pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@' +
+            '((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))';
     RegExp regExp = new RegExp(pattern);
     if (value.length == 0) {
       return "Informe o Email";
-    } else if(!regExp.hasMatch(value)){
+    } else if (!regExp.hasMatch(value)) {
       return "Email inválido";
-    }else {
+    } else {
       return null;
     }
   }
@@ -70,35 +70,34 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
   String _validarSenha(String value) {
     if (value.length == 0) {
       return "Informe a senha";
-    } else if(value != _confSenhaController.text){
+    } else if (value != _confSenhaController.text) {
       return "Senhas não correspondem";
-    }else {
+    } else {
       return null;
     }
   }
 
   String _validarConfSenha(String value) {
-
     if (value.length == 0) {
       return "Informe a senha";
-    } else if(value != _senhaController.text){
+    } else if (value != _senhaController.text) {
       return "Senhas não correspondem";
-    }else {
+    } else {
       return null;
     }
   }
-
 
   //////////////////////////////////////////////////////////////////
   //                           ALERTAS                            //
   //////////////////////////////////////////////////////////////////
 
-  _erroCampoVazio(){
+  _erroCampoVazio() {
     showDialog(
         context: context,
-        builder: (context){
+        builder: (context) {
           return AlertDialog(
-            title: Text("Atenção!",
+            title: Text(
+              "Atenção!",
               textAlign: TextAlign.center,
             ),
             content: Text("O campo de busca não foi preenchido."),
@@ -111,23 +110,25 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
               ),
             ],
           );
-        }
-    );
+        });
   }
-  _alertaRemocao(int id, String nome) async{
+
+  _alertaRemocao(int id, String nome) async {
     showDialog(
         context: context,
-        builder: (context){
+        builder: (context) {
           return AlertDialog(
-            title: Text("Atenção!",
+            title: Text(
+              "Atenção!",
               textAlign: TextAlign.center,
             ),
-            content: Text("Você tem certeza de que deseja remover esse cadastro?"),
+            content:
+                Text("Você tem certeza de que deseja remover esse cadastro?"),
             actions: <Widget>[
               FlatButton(
                 color: Colors.grey,
                 textColor: Colors.white,
-                onPressed: (){
+                onPressed: () {
                   _dbVendedor.removerVendedor(id);
                   setState(() {
                     _vendedorBusca.clear();
@@ -145,22 +146,20 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
               ),
             ],
           );
-        }
-    );
+        });
   }
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
 
-  _buscarVendedor(String vendedorNome) async{
-
+  _buscarVendedor(String vendedorNome) async {
     //_gerenteBusca = null;
     List gerentes = await _dbVendedor.buscarVendedor(vendedorNome);
 
     //criar as instancias vindas do banco
     List<Vendedor> listaTemporaria = List<Vendedor>();
-    for( var item in gerentes){
+    for (var item in gerentes) {
       Vendedor vendedor = Vendedor.fromMap(item);
       listaTemporaria.add(vendedor);
     }
@@ -170,7 +169,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     });
   }
 
-  _alterarGerente(int id, String cpf, int idGerente) async{
+  _alterarGerente(int id, String cpf, int idGerente) async {
     String nome = _nomeController.text;
     String email = _emailController.text;
     String senha = _senhaController.text;
@@ -180,10 +179,9 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     vendedor.idGerente = idGerente;
     int resultado = await _dbVendedor.alterarVendedor(vendedor);
     vendedor.id = resultado;
-
   }
 
-  _exibirTelaAlteracao({Vendedor vendedor}){
+  _exibirTelaAlteracao({Vendedor vendedor}) {
     //setando dados nos campos
     _nomeController = TextEditingController(text: vendedor.nome);
     _emailController = TextEditingController(text: vendedor.email);
@@ -193,17 +191,16 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     print(vendedor.nome);
     showDialog(
         context: context,
-        builder: (context){
+        builder: (context) {
           return AlertDialog(
-            title: Text("Alterar vendedor",
-                textAlign: TextAlign.center),
+            title: Text("Alterar vendedor", textAlign: TextAlign.center),
             content: Form(
               key: _formKey,
               autovalidate: _validate,
               child: ListView(
                 children: <Widget>[
                   Padding(
-                    padding: EdgeInsets.fromLTRB(10,0,10,0),
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: TextFormField(
                       controller: _nomeController,
                       keyboardType: TextInputType.text,
@@ -212,17 +209,14 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
                         prefixIcon: Icon(Icons.person),
                         labelText: "Nome",
                       ),
-
                       validator: _validarNome,
                       onSaved: (String val) {
                         nome = val;
                       },
-
                     ),
                   ),
-
                   Padding(
-                    padding: EdgeInsets.fromLTRB(10,0,10,0),
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
@@ -230,17 +224,14 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
                         prefixIcon: Icon(Icons.email),
                         labelText: "Email",
                       ),
-
                       validator: _validarEmail,
                       onSaved: (String val) {
                         email = val;
                       },
-
                     ),
                   ),
-
                   Padding(
-                    padding: EdgeInsets.fromLTRB(10,0,10,0),
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: TextFormField(
                       controller: _senhaController,
                       keyboardType: TextInputType.text,
@@ -249,17 +240,14 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
                         prefixIcon: Icon(Icons.lock_open),
                         labelText: "Senha",
                       ),
-
                       validator: _validarSenha,
                       onSaved: (String val) {
                         senha = val;
                       },
-
                     ),
                   ),
-
                   Padding(
-                    padding: EdgeInsets.fromLTRB(10,0,10,20),
+                    padding: EdgeInsets.fromLTRB(10, 0, 10, 20),
                     child: TextFormField(
                       controller: _confSenhaController,
                       keyboardType: TextInputType.text,
@@ -268,50 +256,42 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
                         prefixIcon: Icon(Icons.lock_outline),
                         labelText: "Confirmar senha",
                       ),
-
                       validator: _validarConfSenha,
                       onSaved: (String val) {
                         confSenha = val;
                       },
-
                     ),
                   ),
-
                   Row(
                     children: <Widget>[
                       Padding(
                         padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                       ),
-
                       RaisedButton(
                         color: Colors.grey,
                         textColor: Colors.white,
                         child: Text("Cancelar"),
                         onPressed: () => Navigator.pop(context),
                       ),
-
                       Padding(
                         padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                       ),
-
                       RaisedButton(
                         color: Colors.green,
                         textColor: Colors.white,
                         child: Text("Salvar"),
-                        onPressed: (){
-                          _enviarFormulario(vendedor.id, vendedor.cpf, _buscaController.text, vendedor.idGetente);
+                        onPressed: () {
+                          _enviarFormulario(vendedor.id, vendedor.cpf,
+                              _buscaController.text, vendedor.idGetente);
                         },
                       ),
                     ],
                   ),
-
                 ],
               ),
             ),
           );
-        }
-
-    );
+        });
   }
 
   _enviarFormulario(int id, String cpf, String nome, int idGerente) {
@@ -323,9 +303,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
         _vendedorBusca.clear();
         _buscarVendedor(_buscaController.text);
         Navigator.pop(context);
-
       });
-
     } else {
       // erro de validação
       setState(() {
@@ -340,7 +318,6 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     super.initState();
   }
 
-
   //////////////////////////////////////////////////////////////////
   //                           CORPO                              //
   //////////////////////////////////////////////////////////////////
@@ -353,96 +330,93 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
           title: Text("Buscar Vendedor"),
           backgroundColor: Color(0xff315a7d),
         ),
-        body: Column(
+        body: Column(children: <Widget>[
+          Padding(
+            padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: TextField(
+              autofocus: true,
+              controller: _buscaController,
+              keyboardType: TextInputType.text,
+              textCapitalization: TextCapitalization.words,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.search),
+                labelText: "Buscar",
+              ),
+            ),
+          ),
+          Row(
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.fromLTRB(10,10,10,10),
-                child: TextField(
-                  controller: _buscaController,
-                  keyboardType: TextInputType.text,
-                  textCapitalization: TextCapitalization.words,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.search),
-                    labelText: "Buscar",
-                  ),
-                ),
+                padding: EdgeInsets.fromLTRB(260, 0, 0, 0),
               ),
-
-              Row(
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(260, 0, 0, 0),
-                  ),
-                  RaisedButton(
-                    color: Colors.green,
-                    textColor: Colors.white,
-                    child: Text("Buscar"),
-                    onPressed: (){
-                      String nome = _buscaController.text;
-                      //verificar se a busca é vazia
-                      if(nome == ''){
-                        _erroCampoVazio();
-                      }else{
-                        _vendedorBusca.clear();
-                        _buscarVendedor(nome);
-                      }
-                    },
-                  ),
-                ],
+              RaisedButton(
+                color: Colors.green,
+                textColor: Colors.white,
+                child: Text("Buscar"),
+                onPressed: () {
+                  String nome = _buscaController.text;
+                  //verificar se a busca é vazia
+                  if (nome == '') {
+                    _erroCampoVazio();
+                  } else {
+                    _vendedorBusca.clear();
+                    _buscarVendedor(nome);
+                  }
+                },
               ),
-
-              Expanded(
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _vendedorBusca.length,
-                    itemBuilder: (context, index) {
-                      final vendedor = _vendedorBusca[index];
-                      return Card(
-                        child: ListTile(
-                          title: Text(vendedor.nome),
-                          subtitle: Text ("CPF: "+vendedor.cpf +"\nEmail: "+ vendedor.email),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-
-                              GestureDetector(
-                                onTap: (){
-                                  _alertaRemocao(vendedor.id, _buscaController.text);
-                                  print(_buscaController.text);
-                                  _vendedorBusca.clear();
-                                  _buscarVendedor(_buscaController.text);
-                                },
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 20),
-                                  child: Icon(
-                                    Icons.cancel,
-                                    color: Color(0xff920101),
-                                  ),
-                                ),
+            ],
+          ),
+          Expanded(
+            child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: _vendedorBusca.length,
+                itemBuilder: (context, index) {
+                  final vendedor = _vendedorBusca[index];
+                  return Card(
+                    child: ListTile(
+                      title: Text(vendedor.nome),
+                      subtitle: Text("CPF: " +
+                          vendedor.cpf +
+                          "\nEmail: " +
+                          vendedor.email),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () {
+                              _alertaRemocao(
+                                  vendedor.id, _buscaController.text);
+                              print(_buscaController.text);
+                              _vendedorBusca.clear();
+                              _buscarVendedor(_buscaController.text);
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 20),
+                              child: Icon(
+                                Icons.cancel,
+                                color: Color(0xff920101),
                               ),
-
-                              GestureDetector(
-                                onTap: (){
-                                  _exibirTelaAlteracao(vendedor: vendedor);
-                                },
-                                child: Padding(
-                                  padding: EdgeInsets.only(right: 0),
-                                  child: Icon(
-                                    Icons.edit,
-                                    color: Color(0xff315a7d),
-                                  ),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                ),
-              )
-            ]
-        )
-    );
+                          GestureDetector(
+                            onTap: () {
+                              _exibirTelaAlteracao(vendedor: vendedor);
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 0),
+                              child: Icon(
+                                Icons.edit,
+                                color: Color(0xff315a7d),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+          )
+        ]));
   }
 }

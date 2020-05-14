@@ -11,7 +11,6 @@ class TelaCadastroGerente extends StatefulWidget {
 }
 
 class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
-
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
@@ -31,7 +30,6 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   TextEditingController _senhaController = TextEditingController();
   TextEditingController _confSenhaController = TextEditingController();
 
-
   //////////////////////////////////////////////////////////////////
   //                         VALIDAÇÕES                           //
   //////////////////////////////////////////////////////////////////
@@ -46,24 +44,26 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
     }
     return null;
   }
+
   String _validarCpf(String value) {
     if (value.length == 0) {
       return "Informe o CPF";
-    } else if(value.length != 14){
+    } else if (value.length != 14) {
       return "O CPF está incompleto";
     }
     return null;
   }
 
   String _validarEmail(String value) {
-    String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@'+
-        '((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))';
+    String pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@' +
+            '((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))';
     RegExp regExp = new RegExp(pattern);
     if (value.length == 0) {
       return "Informe o Email";
-    } else if(!regExp.hasMatch(value)){
+    } else if (!regExp.hasMatch(value)) {
       return "Email inválido";
-    }else {
+    } else {
       return null;
     }
   }
@@ -71,20 +71,19 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   String _validarSenha(String value) {
     if (value.length == 0) {
       return "Informe a senha";
-    } else if(value != _confSenhaController.text){
+    } else if (value != _confSenhaController.text) {
       return "Senhas não correspondem";
-    }else {
+    } else {
       return null;
     }
   }
 
   String _validarConfSenha(String value) {
-
     if (value.length == 0) {
       return "Informe a senha";
-    } else if(value != _senhaController.text){
+    } else if (value != _senhaController.text) {
       return "Senhas não correspondem";
-    }else {
+    } else {
       return null;
     }
   }
@@ -93,15 +92,16 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   //                           ALERTAS                            //
   //////////////////////////////////////////////////////////////////
 
-  _gerenteCadastradoComSucesso(Gerente gerente){
+  _gerenteCadastradoComSucesso(Gerente gerente) {
     showDialog(
         context: context,
-        builder: (context){
+        builder: (context) {
           return AlertDialog(
-            title: Text("Cadastro realizado!",
+            title: Text(
+              "Cadastro realizado!",
               textAlign: TextAlign.center,
             ),
-            content: Text(gerente.nome +" foi cadastrado com sucesso"),
+            content: Text(gerente.nome + " foi cadastrado com sucesso"),
             actions: <Widget>[
               FlatButton(
                 color: Colors.grey,
@@ -112,15 +112,14 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
               ),
             ],
           );
-        }
-    );
+        });
   }
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
 
-  _cadastrarGerente() async{
+  _cadastrarGerente() async {
     String nome = _nomeController.text;
     String cpf = _cpfController.text;
     String email = _emailController.text;
@@ -131,10 +130,9 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
     int resultado = await _dbGerente.cadastrarGerente(gerente);
     gerente.id = resultado;
 
-    if( resultado != null ){
+    if (resultado != null) {
       _gerenteCadastradoComSucesso(gerente);
     }
-
   }
 
   _enviarFormulario() {
@@ -142,7 +140,6 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
       // Sem erros na validação
       _cadastrarGerente();
       _formKey.currentState.reset();
-
     } else {
       // erro de validação
       setState(() {
@@ -170,8 +167,9 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
             child: ListView(
               children: <Widget>[
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10,0,10,0),
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TextFormField(
+                    autofocus: true,
                     controller: _nomeController,
                     keyboardType: TextInputType.text,
                     textCapitalization: TextCapitalization.words,
@@ -179,17 +177,14 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
                       prefixIcon: Icon(Icons.person),
                       labelText: "Nome",
                     ),
-
                     validator: _validarNome,
                     onSaved: (String val) {
                       nome = val;
                     },
-
                   ),
                 ),
-
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10,0,10,0),
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TextFormField(
                     controller: _cpfController,
                     inputFormatters: [
@@ -201,17 +196,14 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
                       prefixIcon: Icon(Icons.assignment_ind),
                       labelText: "CPF",
                     ),
-
                     validator: _validarCpf,
                     onSaved: (String val) {
                       cpf = val;
                     },
-
                   ),
                 ),
-
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10,0,10,0),
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
@@ -219,17 +211,14 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
                       prefixIcon: Icon(Icons.email),
                       labelText: "Email",
                     ),
-
                     validator: _validarEmail,
                     onSaved: (String val) {
                       email = val;
                     },
-
                   ),
                 ),
-
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10,0,10,0),
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                   child: TextFormField(
                     controller: _senhaController,
                     keyboardType: TextInputType.text,
@@ -238,17 +227,14 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
                       prefixIcon: Icon(Icons.lock_open),
                       labelText: "Senha",
                     ),
-
                     validator: _validarSenha,
                     onSaved: (String val) {
                       senha = val;
                     },
-
                   ),
                 ),
-
                 Padding(
-                  padding: EdgeInsets.fromLTRB(10,0,10,20),
+                  padding: EdgeInsets.fromLTRB(10, 0, 10, 20),
                   child: TextFormField(
                     controller: _confSenhaController,
                     keyboardType: TextInputType.text,
@@ -257,49 +243,40 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
                       prefixIcon: Icon(Icons.lock_outline),
                       labelText: "Confirmar senha",
                     ),
-
                     validator: _validarConfSenha,
                     onSaved: (String val) {
                       confSenha = val;
                     },
-
                   ),
                 ),
-
                 Row(
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.fromLTRB(155, 0, 0, 0),
                     ),
-
                     RaisedButton(
                       color: Colors.grey,
                       textColor: Colors.white,
                       child: Text("Cancelar"),
                       onPressed: () => Navigator.pop(context),
                     ),
-
                     Padding(
                       padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
                     ),
-
                     RaisedButton(
                       color: Colors.green,
                       textColor: Colors.white,
                       child: Text("Salvar"),
-                      onPressed: (){
+                      onPressed: () {
                         _enviarFormulario();
                         //_cadastrarGerente();
                       },
                     ),
                   ],
                 ),
-
               ],
             ),
           ),
-        )
-    );
+        ));
   }
 }
-
