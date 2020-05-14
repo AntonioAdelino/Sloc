@@ -1,58 +1,53 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import 'package:v1/entidades/vendedor.dart';
+import 'dbPrimario.dart';
 
 /*
 Essa classe só é instanciada uma vez pois segue o
 padrão Singleton
 */
 
-class DbVendedor{
-
+class DbVendedor {
   static final String nomeTabela = "vendedores";
   static final DbVendedor _dbVendedor = DbVendedor._internal();
-  Database _db;
+  DbPrimario banco = DbPrimario();
 
-  factory DbVendedor(){
+  factory DbVendedor() {
     return _dbVendedor;
   }
 
-  DbVendedor._internal(){
-  }
-
-  //criar tabela vendedores
-  _onCreate( Database db, int version) async {
-    String sql = "CREATE TABLE vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR, cpf VARCHAR, email VARCHAR, senha VARCHAR, idGerente INTERGER, CONSTRAINT vendedores_gerentes_FK FOREIGN KEY (idGerente) REFERENCES gerentes (id));";
-    await db.execute(sql);
-  }
-
-  //inicializar banco de dados
-  inicializarDB() async{
-    final caminho = await getDatabasesPath();
-    final local = join( caminho, "bancoSloc.db");
-
-    var db = await openDatabase(local, version: 1, onCreate: _onCreate );
-    return db;
-  }
-
-  //get db (banco)
-  get db async {
-    //se já existir retorna db, se não existir cria db
-    if( _db != null){
-      return _db;
-    }else{
-      _db = await inicializarDB();
-      return _db;
-    }
-  }
-
+  DbVendedor._internal() {}
 
   //CRUD
-  Future<int> cadastrarVendedor(Vendedor vendedor) async{
-
-    var bancoDados = await db;
+  Future<int> cadastrarVendedor(Vendedor vendedor) async {
+    var bancoDados = await banco.db;
     int id = await bancoDados.insert(nomeTabela, vendedor.toMap());
     return id;
   }
 
+  Future<int> alterarVendedor(Vendedor vendedor) async {
+    var bancoDados = await banco.db;
+    return await bancoDados.update(nomeTabela, vendedor.toMap(),
+        where: "id = ?", whereArgs: [vendedor.id]);
+  }
+
+  Future<int> removerVendedor(int id) async {
+    var bancoDados = await banco.db;
+    return await bancoDados
+        .delete(nomeTabela, where: "id = ?", whereArgs: [id]);
+  }
+
+  listarVendedores() async {
+    var bancoDados = await banco.db;
+    String sql = "SELECT * FROM $nomeTabela ORDER BY id DESC";
+    List vendedores = await bancoDados.rawQuery(sql);
+    return vendedores;
+  }
+
+  buscarVendedor(String vendedorNome) async {
+    var bancoDados = await banco.db;
+    String sql = "SELECT * FROM $nomeTabela WHERE nome LIKE '%$vendedorNome%'";
+    List vendedores = await bancoDados.rawQuery(sql);
+    print("\n\n" + vendedores.toString());
+    return vendedores;
+  }
 }

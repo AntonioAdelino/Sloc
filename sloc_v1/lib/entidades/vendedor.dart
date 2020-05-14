@@ -10,7 +10,7 @@ class Vendedor {
   //construtores
   Vendedor(this._nome, this._cpf, this._email, this._senha);
 
-  Vendedor.formMap(Map map){
+  Vendedor.fromMap(Map map){
     this._id = map["id"];
     this._nome = map["nome"];
     this._cpf = map["cpf"];

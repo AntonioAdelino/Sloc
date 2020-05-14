@@ -1,14 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:v1/dados/dbGerente.dart';
-import 'package:v1/entidades/gerente.dart';
+import 'package:v1/dados/dbVendedor.dart';
+import 'package:v1/entidades/vendedor.dart';
 
-class TelaBuscarGetente extends StatefulWidget {
+class TelaBuscarVendedor extends StatefulWidget {
   @override
-  _TelaBuscarGetenteState createState() => _TelaBuscarGetenteState();
+  _TelaCuscarVendedorState createState() => _TelaCuscarVendedorState();
 }
 
-class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
+class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
 
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
@@ -27,8 +27,8 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
 
   //Atributos
   TextEditingController _buscaController = TextEditingController();
-  var _dbGerente = DbGerente();
-  List<Gerente> _gerenteBusca = [];
+  var _dbVendedor = DbVendedor();
+  List<Vendedor> _vendedorBusca = [];
 
 
   //////////////////////////////////////////////////////////////////
@@ -88,6 +88,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
     }
   }
 
+
   //////////////////////////////////////////////////////////////////
   //                           ALERTAS                            //
   //////////////////////////////////////////////////////////////////
@@ -127,10 +128,10 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
                 color: Colors.grey,
                 textColor: Colors.white,
                 onPressed: (){
-                  _dbGerente.removerGerente(id);
+                  _dbVendedor.removerVendedor(id);
                   setState(() {
-                    _gerenteBusca.clear();
-                    _buscarGerente(nome);
+                    _vendedorBusca.clear();
+                    _buscarVendedor(nome);
                   });
                   Navigator.pop(context);
                 },
@@ -152,48 +153,49 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
 
-  _buscarGerente(String gerenteNome) async{
+  _buscarVendedor(String vendedorNome) async{
 
     //_gerenteBusca = null;
-    List gerentes = await _dbGerente.buscarGerente(gerenteNome);
+    List gerentes = await _dbVendedor.buscarVendedor(vendedorNome);
 
     //criar as instancias vindas do banco
-    List<Gerente> listaTemporaria = List<Gerente>();
+    List<Vendedor> listaTemporaria = List<Vendedor>();
     for( var item in gerentes){
-      Gerente gerente = Gerente.fromMap(item);
-      listaTemporaria.add(gerente);
+      Vendedor vendedor = Vendedor.fromMap(item);
+      listaTemporaria.add(vendedor);
     }
     //modificando o State
     setState(() {
-      _gerenteBusca.addAll(listaTemporaria);
+      _vendedorBusca.addAll(listaTemporaria);
     });
   }
 
-  _alterarGerente(int id, String cpf) async{
+  _alterarGerente(int id, String cpf, int idGerente) async{
     String nome = _nomeController.text;
     String email = _emailController.text;
     String senha = _senhaController.text;
 
-    Gerente gerente = Gerente(nome, cpf, email, senha);
-    gerente.id = id;
-    int resultado = await _dbGerente.alterarGerente(gerente);
-    gerente.id = resultado;
+    Vendedor vendedor = Vendedor(nome, cpf, email, senha);
+    vendedor.id = id;
+    vendedor.idGerente = idGerente;
+    int resultado = await _dbVendedor.alterarVendedor(vendedor);
+    vendedor.id = resultado;
 
   }
 
-  _exibirTelaAlteracao({Gerente gerente}){
+  _exibirTelaAlteracao({Vendedor vendedor}){
     //setando dados nos campos
-    _nomeController = TextEditingController(text: gerente.nome);
-    _emailController = TextEditingController(text: gerente.email);
-    _senhaController = TextEditingController(text: gerente.senha);
-    _confSenhaController = TextEditingController(text: gerente.senha);
+    _nomeController = TextEditingController(text: vendedor.nome);
+    _emailController = TextEditingController(text: vendedor.email);
+    _senhaController = TextEditingController(text: vendedor.senha);
+    _confSenhaController = TextEditingController(text: vendedor.senha);
 
-    print(gerente.nome);
+    print(vendedor.nome);
     showDialog(
         context: context,
         builder: (context){
           return AlertDialog(
-            title: Text("Alterar gerente",
+            title: Text("Alterar vendedor",
                 textAlign: TextAlign.center),
             content: Form(
               key: _formKey,
@@ -297,7 +299,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
                         textColor: Colors.white,
                         child: Text("Salvar"),
                         onPressed: (){
-                          _enviarFormulario(gerente.id, gerente.cpf, _buscaController.text);
+                          _enviarFormulario(vendedor.id, vendedor.cpf, _buscaController.text, vendedor.idGetente);
                         },
                       ),
                     ],
@@ -312,14 +314,14 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
     );
   }
 
-  _enviarFormulario(int id, String cpf, String nome) {
+  _enviarFormulario(int id, String cpf, String nome, int idGerente) {
     if (_formKey.currentState.validate()) {
       // Sem erros na validação
 
-      _alterarGerente(id, cpf);
+      _alterarGerente(id, cpf, idGerente);
       setState(() {
-        _gerenteBusca.clear();
-        _buscarGerente(_buscaController.text);
+        _vendedorBusca.clear();
+        _buscarVendedor(_buscaController.text);
         Navigator.pop(context);
 
       });
@@ -338,6 +340,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
     super.initState();
   }
 
+
   //////////////////////////////////////////////////////////////////
   //                           CORPO                              //
   //////////////////////////////////////////////////////////////////
@@ -347,7 +350,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("Buscar Gerente"),
+          title: Text("Buscar Vendedor"),
           backgroundColor: Color(0xff315a7d),
         ),
         body: Column(
@@ -381,8 +384,8 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
                       if(nome == ''){
                         _erroCampoVazio();
                       }else{
-                        _gerenteBusca.clear();
-                        _buscarGerente(nome);
+                        _vendedorBusca.clear();
+                        _buscarVendedor(nome);
                       }
                     },
                   ),
@@ -392,23 +395,23 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
               Expanded(
                 child: ListView.builder(
                     shrinkWrap: true,
-                    itemCount: _gerenteBusca.length,
+                    itemCount: _vendedorBusca.length,
                     itemBuilder: (context, index) {
-                      final gerente = _gerenteBusca[index];
+                      final vendedor = _vendedorBusca[index];
                       return Card(
                         child: ListTile(
-                          title: Text( gerente.nome),
-                          subtitle: Text ("CPF: "+gerente.cpf +"\nEmail: "+ gerente.email),
+                          title: Text(vendedor.nome),
+                          subtitle: Text ("CPF: "+vendedor.cpf +"\nEmail: "+ vendedor.email),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
 
                               GestureDetector(
                                 onTap: (){
-                                  _alertaRemocao(gerente.id, _buscaController.text);
+                                  _alertaRemocao(vendedor.id, _buscaController.text);
                                   print(_buscaController.text);
-                                  _gerenteBusca.clear();
-                                  _buscarGerente(_buscaController.text);
+                                  _vendedorBusca.clear();
+                                  _buscarVendedor(_buscaController.text);
                                 },
                                 child: Padding(
                                   padding: EdgeInsets.only(right: 20),
@@ -421,7 +424,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
 
                               GestureDetector(
                                 onTap: (){
-                                  _exibirTelaAlteracao(gerente: gerente);
+                                  _exibirTelaAlteracao(vendedor: vendedor);
                                 },
                                 child: Padding(
                                   padding: EdgeInsets.only(right: 0),

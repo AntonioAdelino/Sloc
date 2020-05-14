@@ -3,6 +3,9 @@ import 'package:v1/TelaBuscarGerente.dart';
 import 'package:v1/TelaCadastroGerente.dart';
 import 'package:v1/TelaCadastroVendedor.dart';
 
+import 'TelaBuscarVendedor.dart';
+
+
 class TelaPrincipal extends StatefulWidget {
   @override
   _TelaPrincipalState createState() => _TelaPrincipalState();
@@ -77,6 +80,22 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => TelaCadastroVendedor()
+                    )
+                );
+              },
+            ),
+
+            ListTile(
+              title: Text('Buscar vendedor',
+                style: TextStyle(
+                    fontSize: 16
+                ),
+              ),
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => TelaBuscarVendedor()
                     )
                 );
               },
