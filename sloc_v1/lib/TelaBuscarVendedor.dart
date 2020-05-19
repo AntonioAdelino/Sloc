@@ -149,6 +149,28 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
         });
   }
 
+  _naoEncontrado() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "Não encontrado!",
+              textAlign: TextAlign.center,
+            ),
+            content: Text("O usuário não foi encontrado na base de dados."),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.grey,
+                textColor: Colors.white,
+                onPressed: () => Navigator.pop(context),
+                child: Text("Ok"),
+              ),
+            ],
+          );
+        });
+  }
+
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
@@ -162,6 +184,9 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     for (var item in gerentes) {
       Vendedor vendedor = Vendedor.fromMap(item);
       listaTemporaria.add(vendedor);
+    }
+    if (listaTemporaria.isEmpty) {
+      _naoEncontrado();
     }
     //modificando o State
     setState(() {
@@ -327,7 +352,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("Buscar Vendedor"),
+          title: Text("Pesquisar Vendedor"),
           backgroundColor: Color(0xff315a7d),
         ),
         body: Column(children: <Widget>[
@@ -339,10 +364,10 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
               keyboardType: TextInputType.text,
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.search),
-                labelText: "Buscar",
-              ),
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.search),
+                  labelText: "Pesquisar",
+                  hintText: "Digite o nome"),
             ),
           ),
           Row(

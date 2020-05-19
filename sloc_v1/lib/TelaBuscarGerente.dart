@@ -149,6 +149,28 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
         });
   }
 
+  _naoEncontrado() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "Não encontrado!",
+              textAlign: TextAlign.center,
+            ),
+            content: Text("O usuário não foi encontrado na base de dados."),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.grey,
+                textColor: Colors.white,
+                onPressed: () => Navigator.pop(context),
+                child: Text("Ok"),
+              ),
+            ],
+          );
+        });
+  }
+
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
@@ -162,6 +184,9 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
     for (var item in gerentes) {
       Gerente gerente = Gerente.fromMap(item);
       listaTemporaria.add(gerente);
+    }
+    if (listaTemporaria.isEmpty) {
+      _naoEncontrado();
     }
     //modificando o State
     setState(() {
@@ -326,7 +351,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("Buscar Gerente"),
+          title: Text("Pesquisar Gerente"),
           backgroundColor: Color(0xff315a7d),
         ),
         body: Column(children: <Widget>[
@@ -340,7 +365,8 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
               decoration: InputDecoration(
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.search),
-                labelText: "Buscar",
+                labelText: "Pesquisar",
+                hintText: "Digite o nome",
               ),
             ),
           ),

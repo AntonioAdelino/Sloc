@@ -39,13 +39,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ExpansionTile(
               leading: Icon(Icons.people),
               title: Text(
-                "Cadastros",
+                "Cadastrar",
                 style: TextStyle(fontSize: 16),
               ),
               children: <Widget>[
                 ListTile(
                   title: Text(
-                    'Cadastrar gerente',
+                    'Gerente',
                     style: TextStyle(fontSize: 15, color: Colors.black87),
                   ),
                   onTap: () {
@@ -57,7 +57,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 ),
                 ListTile(
                   title: Text(
-                    'Cadastrar vendedor',
+                    'Vendedor',
                     style: TextStyle(fontSize: 15, color: Colors.black87),
                   ),
                   onTap: () {
@@ -73,13 +73,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ExpansionTile(
               leading: Icon(Icons.search),
               title: Text(
-                "Buscar",
+                "Pesquisar",
                 style: TextStyle(fontSize: 16),
               ),
               children: <Widget>[
                 ListTile(
                   title: Text(
-                    'Buscar gerente',
+                    'Gerente',
                     style: TextStyle(fontSize: 15, color: Colors.black87),
                   ),
                   onTap: () {
@@ -91,7 +91,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 ),
                 ListTile(
                   title: Text(
-                    'Buscar vendedor',
+                    'Vendedor',
                     style: TextStyle(fontSize: 15, color: Colors.black87),
                   ),
                   onTap: () {
