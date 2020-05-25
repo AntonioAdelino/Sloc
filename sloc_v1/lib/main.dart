@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:v1/Index.dart';
-import 'package:v1/Login.dart';
+import 'package:Sloc/Index.dart';
+import 'package:Sloc/Login.dart';
 
 void main() {
   runApp(MaterialApp(

@@ -1,5 +1,5 @@
-import 'package:v1/dados/dbPrimario.dart';
-import 'package:v1/entidades/gerente.dart';
+import 'package:Sloc/dados/dbPrimario.dart';
+import 'package:Sloc/entidades/gerente.dart';
 
 /*
 Essa classe só é instanciada uma vez pois segue o

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:v1/dados/dbGerente.dart';
-import 'package:v1/entidades/gerente.dart';
+import 'package:Sloc/dados/dbGerente.dart';
+import 'package:Sloc/entidades/gerente.dart';
 
 class TelaBuscarGetente extends StatefulWidget {
   @override

@@ -1,4 +1,4 @@
-name: v1
+name: Sloc
 description: Projeto voltado ao desenvolvimento de uma aplicação de busca por estabelecimentos baseando-se em geolocalização.
 
 # The following defines the version and build number for your application.
@@ -25,6 +25,8 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   sqflite: ^1.3.0
+  google_maps_flutter: ^0.5.28
+  geolocator: ^5.3.1
 
 dev_dependencies:
   flutter_test:

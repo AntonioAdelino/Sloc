@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:v1/dados/dbVendedor.dart';
-import 'package:v1/entidades/vendedor.dart';
+import 'package:Sloc/dados/dbVendedor.dart';
+import 'package:Sloc/entidades/vendedor.dart';
 
 class TelaBuscarVendedor extends StatefulWidget {
   @override

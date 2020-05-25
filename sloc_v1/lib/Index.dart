@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:v1/TelaBuscarGerente.dart';
-import 'package:v1/TelaCadastroGerente.dart';
-import 'package:v1/TelaCadastroVendedor.dart';
-
+import 'package:Sloc/TelaBuscarGerente.dart';
+import 'package:Sloc/TelaCadastroGerente.dart';
+import 'package:Sloc/TelaCadastroVendedor.dart';
 import 'TelaBuscarVendedor.dart';
+import 'dart:async';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class TelaPrincipal extends StatefulWidget {
   @override
@@ -11,6 +13,68 @@ class TelaPrincipal extends StatefulWidget {
 }
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
+  Completer<GoogleMapController> _controllerMap = Completer();
+  Set<Marker> _marcadores = {};
+  CameraPosition _posicaoCamera =
+      CameraPosition(target: LatLng(-7.685516, -35.516136), zoom: 15);
+
+  _carregarMarcadores() {
+    Set<Marker> marcadoresLocal = {};
+
+    Marker marcador = Marker(
+        markerId: MarkerId("marcador"),
+        position: LatLng(-7.685516, -35.516136),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        infoWindow: InfoWindow(title: "Casa"),
+        onTap: () {
+          print("click feito");
+        });
+
+    marcadoresLocal.add(marcador);
+
+    setState(() {
+      _marcadores = marcadoresLocal;
+    });
+  }
+
+  _recuperarLocalizacaoAtual() async {
+    Position position = await Geolocator()
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+    setState(() {
+      _posicaoCamera = CameraPosition(
+          target: LatLng(position.latitude, position.longitude), zoom: 17);
+      _movimentarCamera();
+    });
+  }
+
+  _movimentarCamera() async {
+    GoogleMapController googleMapController = await _controllerMap.future;
+    googleMapController
+        .animateCamera(CameraUpdate.newCameraPosition(_posicaoCamera));
+  }
+
+  _adicionarListenerLocalizacao() {
+    var geolocator = Geolocator();
+    var locationOptions = LocationOptions(
+      accuracy: LocationAccuracy.best,
+      distanceFilter: 10,
+    );
+    geolocator.getPositionStream(locationOptions).listen((Position position) {
+      //atualiza a posição do marcador
+      setState(() {
+        _posicaoCamera = CameraPosition(
+            target: LatLng(position.latitude, position.longitude), zoom: 17);
+        _movimentarCamera();
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    _recuperarLocalizacaoAtual();
+    _adicionarListenerLocalizacao();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +99,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 color: Color(0xff315a7d),
               ),
             ),
-
             ExpansionTile(
               leading: Icon(Icons.people),
               title: Text(
@@ -69,7 +132,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 ),
               ],
             ),
-
             ExpansionTile(
               leading: Icon(Icons.search),
               title: Text(
@@ -103,29 +165,36 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 ),
               ],
             ),
-////////////////////////////////////////
           ],
         ),
       ),
-      body: Container(
-        padding: EdgeInsets.fromLTRB(80, 30, 80, 80),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Image.asset(
-                "imagens/logoPreto.png",
-              ),
-
-//              Padding(
-//                padding: EdgeInsets.all(50),
-//                child: FloatingActionButton(
-//                  child: Icon(
-//                      Icons.search,
-//                      color: Colors.white),
-//                  backgroundColor: Color(0xff315a7d),
-//                ),
-//              ),
-            ]),
+      body: Stack(
+        fit: StackFit.expand,
+        children: <Widget>[
+          Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            child: GoogleMap(
+              zoomControlsEnabled: false,
+              mapType: MapType.normal,
+              minMaxZoomPreference: MinMaxZoomPreference(15, 17),
+              initialCameraPosition: _posicaoCamera,
+              onMapCreated: (GoogleMapController controller) {
+                _controllerMap.complete(controller);
+              },
+              myLocationEnabled: true,
+              mapToolbarEnabled: false,
+              markers: _marcadores,
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.search, color: Colors.white),
+        backgroundColor: Color(0xff315a7d),
+        onPressed: () {
+          _carregarMarcadores();
+        },
       ),
     );
   }

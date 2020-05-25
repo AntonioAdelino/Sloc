@@ -1,4 +1,4 @@
-import 'package:v1/entidades/vendedor.dart';
+import 'package:Sloc/entidades/vendedor.dart';
 import 'dbPrimario.dart';
 
 /*

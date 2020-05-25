@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:v1/TelaCadastroGerente.dart';
+import 'package:Sloc/TelaCadastroGerente.dart';
 
 class Login extends StatefulWidget {
   @override

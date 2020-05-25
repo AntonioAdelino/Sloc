@@ -1,9 +1,7 @@
 import 'package:brasil_fields/formatter/cpf_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:v1/dados/dbVendedor.dart';
-
-import 'entidades/gerente.dart';
+import 'package:Sloc/dados/dbVendedor.dart';
 import 'entidades/vendedor.dart';
 
 class TelaCadastroVendedor extends StatefulWidget {

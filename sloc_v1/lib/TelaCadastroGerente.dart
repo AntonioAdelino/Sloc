@@ -2,7 +2,7 @@ import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:v1/dados/dbGerente.dart';
+import 'package:Sloc/dados/dbGerente.dart';
 import 'entidades/gerente.dart';
 
 class TelaCadastroGerente extends StatefulWidget {
