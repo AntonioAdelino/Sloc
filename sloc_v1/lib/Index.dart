@@ -16,7 +16,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   Completer<GoogleMapController> _controllerMap = Completer();
   Set<Marker> _marcadores = {};
   CameraPosition _posicaoCamera =
-      CameraPosition(target: LatLng(-7.685516, -35.516136), zoom: 15);
+      CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 15);
 
   _carregarMarcadores() {
     Set<Marker> marcadoresLocal = {};
@@ -183,7 +183,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 _controllerMap.complete(controller);
               },
               myLocationEnabled: true,
+              myLocationButtonEnabled: false,
               mapToolbarEnabled: false,
+              compassEnabled: false,
               markers: _marcadores,
             ),
           ),
