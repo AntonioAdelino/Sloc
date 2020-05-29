@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Sloc/TelaBuscarGerente.dart';
 import 'package:Sloc/TelaCadastroGerente.dart';
@@ -6,6 +7,8 @@ import 'TelaBuscarVendedor.dart';
 import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_webservice/places.dart';
+
 
 class TelaPrincipal extends StatefulWidget {
   @override
@@ -13,10 +16,20 @@ class TelaPrincipal extends StatefulWidget {
 }
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
+
   Completer<GoogleMapController> _controllerMap = Completer();
   Set<Marker> _marcadores = {};
   CameraPosition _posicaoCamera =
       CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 15);
+  double latUsuario = -0.000000;
+  double longUsuario = -0.000000;
+
+
+  TextEditingController _profissionalController = TextEditingController();
+  TextEditingController _bairroController = TextEditingController();
+  TextEditingController _cidadeController = TextEditingController();
+  TextEditingController _estadoController = TextEditingController();
+
 
   _carregarMarcadores() {
     Set<Marker> marcadoresLocal = {};
@@ -44,6 +57,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       _posicaoCamera = CameraPosition(
           target: LatLng(position.latitude, position.longitude), zoom: 17);
       _movimentarCamera();
+      latUsuario = position.latitude;
+      longUsuario = position.longitude;
     });
   }
 
@@ -64,15 +79,63 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       setState(() {
         _posicaoCamera = CameraPosition(
             target: LatLng(position.latitude, position.longitude), zoom: 17);
+        latUsuario = position.latitude;
+        longUsuario = position.longitude;
         _movimentarCamera();
+
       });
     });
   }
 
   @override
   void initState() {
-    _recuperarLocalizacaoAtual();
+    //_recuperarLocalizacaoAtual();
     _adicionarListenerLocalizacao();
+  }
+
+
+  _pesquisarProfissional() async {
+    //pesquisa o profissional por area
+//    List<Placemark> listaProfissionais = await Geolocator()
+//        .placemarkFromAddress(_profissionalController.text + "," + _bairroController.text
+//        + "," + _cidadeController.text + "," + _estadoController.text);
+//
+//    if(listaProfissionais != null && listaProfissionais.length > 0){
+//      for(Placemark item in listaProfissionais){
+//        print('oi');
+//        print(item.position.latitude.toString()+"\n");
+//        print(item.position.longitude.toString()+"\n");
+//      }
+//    }
+
+    GoogleMapsPlaces places = new GoogleMapsPlaces(apiKey: "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4");
+    PlacesSearchResponse resultadoBusca = await places.searchByText(_profissionalController.text
+        + "," + _bairroController.text + "," + _cidadeController.text + "," + _estadoController.text);
+
+    List<PlacesSearchResult> lugares = resultadoBusca.results;
+    print("Status busca: "+resultadoBusca.status);
+    print("\nQuantidade de lugares: "+ lugares.length.toString());
+
+    for(PlacesSearchResult item in lugares){
+      print("\n"+item.name);
+      _adicionarMarcadoresDeBusca(item);
+      }
+  }
+
+  _adicionarMarcadoresDeBusca(PlacesSearchResult lugar) {
+    //criando marcador
+    Marker marcador = Marker(
+        markerId: MarkerId(lugar.id),
+        position: LatLng(lugar.geometry.location.lat, lugar.geometry.location.lng),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        infoWindow: InfoWindow(title: lugar.name),
+        onTap: () {
+          //print("click feito");
+        });
+    //adicionando no mapa
+    setState(() {
+      _marcadores.add(marcador);
+    });
   }
 
   @override
@@ -189,13 +252,140 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               markers: _marcadores,
             ),
           ),
+
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Padding(
+              padding: EdgeInsets.all(15),
+              child: Container(
+                height: 40,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  color: Colors.white
+                ),
+                child: TextField(
+                  controller: _profissionalController,
+                  decoration: InputDecoration(
+                    //border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.assignment_ind),
+                    hintText: "Digite o profissional",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 45,
+            left: 0,
+            right: 0,
+            child: Padding(
+              padding: EdgeInsets.all(15),
+              child: Container(
+                height: 40,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    color: Colors.white
+                ),
+                child: TextField(
+                  controller: _bairroController,
+                  decoration: InputDecoration(
+                    //border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.location_on),
+                      hintText: "Digite o bairro",
+                      border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 90,
+            left: 0,
+            right: 100,
+            child: Padding(
+              padding: EdgeInsets.all(15),
+              child: Container(
+                height: 40,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    color: Colors.white
+                ),
+                child: TextField(
+                  controller: _cidadeController,
+                  decoration: InputDecoration(
+                    //border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.location_city),
+                      hintText: "Digite a cidade",
+                      border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: 90,
+            left: 240,
+            right: 0,
+            child: Padding(
+              padding: EdgeInsets.all(15),
+              child: Container(
+                height: 40,
+                width: 42,
+                decoration: BoxDecoration(
+                    border: Border.all(),
+                    color: Colors.white
+                ),
+                child: TextField(
+                  controller: _estadoController,
+                  decoration: InputDecoration(
+                    //border: OutlineInputBorder(),
+                      //prefixIcon: Icon(Icons.location_on),
+                      hintText: "\tUF",
+                      border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+//          Align(
+//            alignment: Alignment.bottomLeft,
+//            child: Container(
+//              margin: EdgeInsets.symmetric(vertical: 20),
+//              height: 150,
+//              child: ListView(
+//                scrollDirection: Axis.horizontal,
+//                children: <Widget>[
+//                  SizedBox(width: 10),
+//                  Padding(
+//                    padding: const EdgeInsets.all(8),
+//                    child: _boxes(),
+//                    //ver video no card
+//                  )
+//                ],
+//              ),
+//            ),
+//          ),
+
         ],
       ),
+
+
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search, color: Colors.white),
         backgroundColor: Color(0xff315a7d),
         onPressed: () {
           _carregarMarcadores();
+          _pesquisarProfissional();
         },
       ),
     );
