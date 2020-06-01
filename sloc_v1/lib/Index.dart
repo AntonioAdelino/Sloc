@@ -9,58 +9,56 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
 
-
 class TelaPrincipal extends StatefulWidget {
   @override
   _TelaPrincipalState createState() => _TelaPrincipalState();
 }
 
 class _TelaPrincipalState extends State<TelaPrincipal> {
-
+  //Atributos Maps
   Completer<GoogleMapController> _controllerMap = Completer();
   Set<Marker> _marcadores = {};
   CameraPosition _posicaoCamera =
-      CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 15);
-  double latUsuario = -0.000000;
-  double longUsuario = -0.000000;
+      CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 10);
 
-
+  //Atributos TextField
   TextEditingController _profissionalController = TextEditingController();
   TextEditingController _bairroController = TextEditingController();
   TextEditingController _cidadeController = TextEditingController();
   TextEditingController _estadoController = TextEditingController();
 
+  //////////////////////////////////////////////////////////////////
+  //                         MÉTODOS                              //
+  //////////////////////////////////////////////////////////////////
 
-  _carregarMarcadores() {
-    Set<Marker> marcadoresLocal = {};
-
-    Marker marcador = Marker(
-        markerId: MarkerId("marcador"),
-        position: LatLng(-7.685516, -35.516136),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-        infoWindow: InfoWindow(title: "Casa"),
-        onTap: () {
-          print("click feito");
-        });
-
-    marcadoresLocal.add(marcador);
-
-    setState(() {
-      _marcadores = marcadoresLocal;
-    });
-  }
-
-  _recuperarLocalizacaoAtual() async {
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-    setState(() {
-      _posicaoCamera = CameraPosition(
-          target: LatLng(position.latitude, position.longitude), zoom: 17);
-      _movimentarCamera();
-      latUsuario = position.latitude;
-      longUsuario = position.longitude;
-    });
-  }
+//  _carregarMarcadores() {
+//    Set<Marker> marcadoresLocal = {};
+//
+//    Marker marcador = Marker(
+//        markerId: MarkerId("marcador"),
+//        position: LatLng(-7.685516, -35.516136),
+//        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+//        infoWindow: InfoWindow(title: "Casa"),
+//        onTap: () {
+//          print("click feito");
+//        });
+//
+//    marcadoresLocal.add(marcador);
+//
+//    setState(() {
+//      _marcadores = marcadoresLocal;
+//    });
+//  }
+//
+//  _recuperarLocalizacaoAtual() async {
+//    Position position = await Geolocator()
+//        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
+//    setState(() {
+//      _posicaoCamera = CameraPosition(
+//          target: LatLng(position.latitude, position.longitude), zoom: 17);
+//      _movimentarCamera();
+//    });
+//  }
 
   _movimentarCamera() async {
     GoogleMapController googleMapController = await _controllerMap.future;
@@ -78,55 +76,39 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       //atualiza a posição do marcador
       setState(() {
         _posicaoCamera = CameraPosition(
-            target: LatLng(position.latitude, position.longitude), zoom: 17);
-        latUsuario = position.latitude;
-        longUsuario = position.longitude;
+            target: LatLng(position.latitude, position.longitude), zoom: 10);
         _movimentarCamera();
-
       });
     });
   }
 
-  @override
-  void initState() {
-    //_recuperarLocalizacaoAtual();
-    _adicionarListenerLocalizacao();
-  }
-
-
   _pesquisarProfissional() async {
     //pesquisa o profissional por area
-//    List<Placemark> listaProfissionais = await Geolocator()
-//        .placemarkFromAddress(_profissionalController.text + "," + _bairroController.text
-//        + "," + _cidadeController.text + "," + _estadoController.text);
-//
-//    if(listaProfissionais != null && listaProfissionais.length > 0){
-//      for(Placemark item in listaProfissionais){
-//        print('oi');
-//        print(item.position.latitude.toString()+"\n");
-//        print(item.position.longitude.toString()+"\n");
-//      }
-//    }
-
-    GoogleMapsPlaces places = new GoogleMapsPlaces(apiKey: "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4");
-    PlacesSearchResponse resultadoBusca = await places.searchByText(_profissionalController.text
-        + "," + _bairroController.text + "," + _cidadeController.text + "," + _estadoController.text);
+    GoogleMapsPlaces places =
+        new GoogleMapsPlaces(apiKey: "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4");
+    PlacesSearchResponse resultadoBusca = await places.searchByText(
+        _profissionalController.text +
+            "," +
+            _bairroController.text +
+            "," +
+            _cidadeController.text +
+            "," +
+            _estadoController.text);
 
     List<PlacesSearchResult> lugares = resultadoBusca.results;
-    print("Status busca: "+resultadoBusca.status);
-    print("\nQuantidade de lugares: "+ lugares.length.toString());
-
-    for(PlacesSearchResult item in lugares){
-      print("\n"+item.name);
+    //adiciona marcador por marcador no mapa
+    for (PlacesSearchResult item in lugares) {
+      print("\n" + item.name);
       _adicionarMarcadoresDeBusca(item);
-      }
+    }
   }
 
   _adicionarMarcadoresDeBusca(PlacesSearchResult lugar) {
     //criando marcador
     Marker marcador = Marker(
         markerId: MarkerId(lugar.id),
-        position: LatLng(lugar.geometry.location.lat, lugar.geometry.location.lng),
+        position:
+            LatLng(lugar.geometry.location.lat, lugar.geometry.location.lng),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
         infoWindow: InfoWindow(title: lugar.name),
         onTap: () {
@@ -137,6 +119,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       _marcadores.add(marcador);
     });
   }
+
+  @override
+  void initState() {
+    _adicionarListenerLocalizacao();
+  }
+
+  //////////////////////////////////////////////////////////////////
+  //                          APPBAR                              //
+  //////////////////////////////////////////////////////////////////
 
   @override
   Widget build(BuildContext context) {
@@ -231,6 +222,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           ],
         ),
       ),
+
+      //////////////////////////////////////////////////////////////////
+      //                            BODY                              //
+      //////////////////////////////////////////////////////////////////
+
       body: Stack(
         fit: StackFit.expand,
         children: <Widget>[
@@ -262,10 +258,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               child: Container(
                 height: 40,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  border: Border.all(),
-                  color: Colors.white
-                ),
+                decoration:
+                    BoxDecoration(border: Border.all(), color: Colors.white),
                 child: TextField(
                   controller: _profissionalController,
                   decoration: InputDecoration(
@@ -288,17 +282,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               child: Container(
                 height: 40,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    color: Colors.white
-                ),
+                decoration:
+                    BoxDecoration(border: Border.all(), color: Colors.white),
                 child: TextField(
                   controller: _bairroController,
                   decoration: InputDecoration(
                     //border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.location_on),
-                      hintText: "Digite o bairro",
-                      border: InputBorder.none,
+                    prefixIcon: Icon(Icons.location_on),
+                    hintText: "Digite o bairro",
+                    border: InputBorder.none,
                   ),
                 ),
               ),
@@ -314,17 +306,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               child: Container(
                 height: 40,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    color: Colors.white
-                ),
+                decoration:
+                    BoxDecoration(border: Border.all(), color: Colors.white),
                 child: TextField(
                   controller: _cidadeController,
                   decoration: InputDecoration(
                     //border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.location_city),
-                      hintText: "Digite a cidade",
-                      border: InputBorder.none,
+                    prefixIcon: Icon(Icons.location_city),
+                    hintText: "Digite a cidade",
+                    border: InputBorder.none,
                   ),
                 ),
               ),
@@ -340,17 +330,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               child: Container(
                 height: 40,
                 width: 42,
-                decoration: BoxDecoration(
-                    border: Border.all(),
-                    color: Colors.white
-                ),
+                decoration:
+                    BoxDecoration(border: Border.all(), color: Colors.white),
                 child: TextField(
                   controller: _estadoController,
                   decoration: InputDecoration(
                     //border: OutlineInputBorder(),
-                      //prefixIcon: Icon(Icons.location_on),
-                      hintText: "\tUF",
-                      border: InputBorder.none,
+                    //prefixIcon: Icon(Icons.location_on),
+                    hintText: "\tUF",
+                    border: InputBorder.none,
                   ),
                 ),
               ),
@@ -375,16 +363,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 //              ),
 //            ),
 //          ),
-
         ],
       ),
-
 
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search, color: Colors.white),
         backgroundColor: Color(0xff315a7d),
         onPressed: () {
-          _carregarMarcadores();
           _pesquisarProfissional();
         },
       ),
