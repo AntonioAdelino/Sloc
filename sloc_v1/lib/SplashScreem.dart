@@ -11,7 +11,7 @@ class _SplashScreemState extends State<SplashScreem> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    Timer(Duration(seconds: 3), () {
+    Timer(Duration(seconds: 2), () {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (_) => TelaPrincipal()));
     });
@@ -21,8 +21,8 @@ class _SplashScreemState extends State<SplashScreem> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color(0xff315a7d),
-        padding: EdgeInsets.all(100),
+        color: Color(0xff1e2e3e),
+        padding: EdgeInsets.all(90),
         child: Center(
           child: Image.asset("imagens/logoBranco.png"),
         ),

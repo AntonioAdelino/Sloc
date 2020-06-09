@@ -9,6 +9,7 @@ class TelaBuscarGetente extends StatefulWidget {
 }
 
 class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
+
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
@@ -352,7 +353,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text("Pesquisar Gerente"),
-          backgroundColor: Color(0xff315a7d),
+          backgroundColor: Color(0xff1e2e3e),
         ),
         body: Column(children: <Widget>[
           Padding(

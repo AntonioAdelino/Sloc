@@ -157,7 +157,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text("Cadastrar Gerente"),
-          backgroundColor: Color(0xff315a7d),
+          backgroundColor: Color(0xff1e2e3e),
         ),
         body: Container(
           //padding: EdgeInsets.fromLTRB(5, 10, 5, 10),

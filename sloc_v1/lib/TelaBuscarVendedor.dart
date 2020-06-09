@@ -353,7 +353,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text("Pesquisar Vendedor"),
-          backgroundColor: Color(0xff315a7d),
+          backgroundColor: Color(0xff1e2e3e),
         ),
         body: Column(children: <Widget>[
           Padding(
