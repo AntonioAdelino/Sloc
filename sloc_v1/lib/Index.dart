@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Sloc/TelaBuscarGerente.dart';
@@ -9,6 +11,7 @@ import 'dart:async';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:http/http.dart' as http;
 
 class TelaPrincipal extends StatefulWidget {
   @override
@@ -27,6 +30,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 8);
 
   List<PlacesSearchResult> _lugares = [];
+
+  static int tappedGestureDetector = 0;
 
   double latUsuario, longUsuario;
 
@@ -127,6 +132,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     _lugares = _validarLugares(
         resultadoBusca.results, localAtual.subAdministrativeArea);
 
+    // PlacesSearchResult teste = _lugares[0];
+
     //adiciona marcador por marcador no mapa
     for (PlacesSearchResult item in _lugares) {
       _adicionarMarcadoresDeBusca(item);
@@ -134,6 +141,48 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
     //mover camera para cidade
     _irParaLocal(latUsuario, longUsuario, zoom: 8);
+  }
+
+  Future<String> pegarNumero(PlacesSearchResult item) async {
+    //faz consulta web
+    var response = await http.get(
+        "https://maps.googleapis.com/maps/api/place/details/json?place_id=" +
+            item.placeId +
+            "&fields=formatted_phone_number&key=AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4");
+    //trata Json e retorna apenas o numero
+    String numero = transformarJsonEmNum(json.decode(response.body));
+    return numero;
+  }
+  
+  verificarHorariodeFuncionamento( PlacesSearchResult item ){
+    if(item.openingHours != null){
+      bool horario = item.openingHours.openNow;
+      if(horario == null ){
+        return "Não consta!";
+      } else if(horario){
+        return "Sim";
+      } else{
+        return "Não";
+      }
+
+    }
+
+    return "Não consta!";
+  }
+  transformarJsonEmNum(Map<String, dynamic> json) {
+    String numero;
+    //transforma o map em list
+    var list = json.values.toList();
+
+    //verifica se a lista está vazia
+    if (list.length == 3 && list != null) {
+      //verifica se existe o numero de contato
+      if (list[1].length != 0) {
+        numero = list[1].values.toList()[0].toString();
+        return numero;
+      }
+    }
+    return "Não consta!";
   }
 
   _pesquisarComEndereco(GoogleMapsPlaces places) async {
@@ -157,7 +206,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
     //mover camera para cidade pesquisada
     List<Placemark> endereco =
-    await Geolocator().placemarkFromAddress(_cidadeController.text);
+        await Geolocator().placemarkFromAddress(_cidadeController.text);
     Placemark local = endereco[0];
 
     _irParaLocal(local.position.latitude, local.position.longitude, zoom: 5);
@@ -170,7 +219,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       //se não for da vidade é removido da lista
       if (item.formattedAddress.contains(cidade) && item.rating != null) {
         lugaresValidados.add(item);
-        print("\n" + item.name);
       }
     }
 
@@ -194,10 +242,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     });
   }
 
-  Future<void> _irParaLocal(double lat, double long, {double zoom/*Parâmetro opcional*/}) async {
-    if(zoom == null){
+  Future<void> _irParaLocal(double lat, double long,
+      {double zoom /*Parâmetro opcional*/}) async {
+    if (zoom == null) {
       _posicaoCamera = CameraPosition(target: LatLng(lat, long), zoom: 15);
-    }else{
+    } else {
       _posicaoCamera = CameraPosition(target: LatLng(lat, long), zoom: zoom);
     }
     _movimentarCamera();
@@ -207,9 +256,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     //instanciando lista de Widgets
     List<Widget> listaDeWidget = [];
     //colocando um container vazio para não dar erro: "lista vazia"
-    listaDeWidget.add(
-      Container(),
-    );
+
+
+//    listaDeWidget.add(
+//      Container(),
+//    );
 
     //adicionando as caixas com insformações dos lugares
     for (PlacesSearchResult item in _lugares) {
@@ -220,12 +271,24 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   Widget _caixas(PlacesSearchResult item) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8),
       child: GestureDetector(
         onTap: () {
           _irParaLocal(item.geometry.location.lat, item.geometry.location.lng);
+
+          setState(() {
+            if (tappedGestureDetector ==1){
+              tappedGestureDetector=0;
+            }else{
+              tappedGestureDetector = 1;
+            }
+          });
+
+
         },
         child: Container(
+
+          //decoration:BoxDecoration(border: tappedGestureDetector == 1 ? Border.all(color: Color(0xff1e2e3e), width: 2) : Border.all(color: Colors.transparent),),
           child: new FittedBox(
             child: Material(
               elevation: 4,
@@ -248,12 +311,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                   Container(
                     width: 200,
                     child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                      padding: EdgeInsets.all(0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 16),
+                            padding: const EdgeInsets.fromLTRB(3, 3, 3, 16),
                             child: Container(
                               child: Text(
                                 item.name,
@@ -266,10 +329,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                            padding: const EdgeInsets.fromLTRB(3, 0, 3, 5),
                             child: Container(
                               child: Text(
-                                item.formattedAddress,
+                                item.formattedAddress.split(", Brazil")[0]+".",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     color: Colors.black,
@@ -278,22 +341,50 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                               ),
                             ),
                           ),
-
-                        Padding(
-                          padding: const EdgeInsets.all(5),
-                          child: Container(
-                            child: Text(
-                            "Avaliação: " + "lulu",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.bold),
+                          Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Container(
+                              child: FutureBuilder(
+                                future: pegarNumero(item),
+                                builder: (context, numero) {
+                                  if (numero.hasData) {
+                                    return Text(
+                                      "Contato: " + numero.data,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold),
+                                    );
+                                  } else {
+                                    return Text(
+                                      "Contato: Carregando...",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.bold),
+                                    );
+                                  }
+                                },
                               ),
                             ),
-                        ),
+                          ),
 
-
+                          Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Container(
+                              child: Text(
+                                "Aberto agora: "+verificarHorariodeFuncionamento(item),//"Aberto: " + item.openingHours.openNow.toString(),
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14.0,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                          
                           Padding(
                             padding: const EdgeInsets.all(5),
                             child: Container(
@@ -305,8 +396,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.bold),
                               ),
-
-
                             ),
                           ),
                         ],
@@ -556,8 +645,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                     textCapitalization: TextCapitalization.characters,
                     controller: _estadoController,
                     decoration: InputDecoration(
-                      //border: OutlineInputBorder(),
-                      //prefixIcon: Icon(Icons.location_on),
                       hintText: "\tUF",
                       border: InputBorder.none,
                     ),
@@ -569,46 +656,55 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           Align(
             alignment: Alignment.bottomLeft,
             child: Container(
-              margin: EdgeInsets.symmetric(vertical: 20),
+              margin: EdgeInsets.symmetric(vertical: 40),
               height: 150,
               child: ListView(
-                  scrollDirection: Axis.horizontal, children: _criarLista()),
+
+                scrollDirection: Axis.horizontal,
+                children: _criarLista()),
             ),
           ),
-
           Visibility(
             visible: !visibilidade,
-            child: Positioned(
+            child:Positioned(
               top: 40,
-              left: 310,
               right: 0,
-              child: IconButton(
-                  icon: new Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Color(0xff1e2e3e),
-                    size: 40,
-                  ),
-                  onPressed: () {
-                    _habilitarVisibilidade();
-                  }),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  IconButton(
+                      icon: new Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Color(0xff1e2e3e),
+                        size: 40,
+                      ),
+                      onPressed: () {
+                        _habilitarVisibilidade();
+                      }),
+                ],
+              ),
             ),
           ),
-
           Visibility(
             visible: visibilidade,
             child: Positioned(
               top: 130,
-              left: 310,
+              //left: 310,
               right: 0,
-              child: IconButton(
-                  icon: new Icon(
-                    Icons.keyboard_arrow_up,
-                    color: Color(0xff1e2e3e),
-                    size: 40,
-                  ),
-                  onPressed: () {
-                    _habilitarVisibilidade();
-                  }),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  IconButton(
+                      icon: new Icon(
+                        Icons.keyboard_arrow_up,
+                        color: Color(0xff1e2e3e),
+                        size: 40,
+                      ),
+                      onPressed: () {
+                        _habilitarVisibilidade();
+                      }),
+                ],
+              ),
             ),
           ),
 
@@ -626,6 +722,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           _pesquisarProfissional();
         },
       ),
+
     );
   }
 }
