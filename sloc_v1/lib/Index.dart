@@ -28,12 +28,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   Set<Marker> _marcadores = {};
   CameraPosition _posicaoCamera =
       CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 8);
-
-  List<PlacesSearchResult> _lugares = [];
-
-  static int tappedGestureDetector = 0;
-
   double latUsuario, longUsuario;
+
+  //Atributos seleção
+  List<PlacesSearchResult> _lugares = [];
+  List<bool> _controleDeSelecao = [];
 
   //Atributos TextField
   TextEditingController _profissionalController = TextEditingController();
@@ -41,40 +40,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   TextEditingController _cidadeController = TextEditingController();
   TextEditingController _estadoController = TextEditingController();
 
+  //Atributo flag de visibilidade de componentes
   bool visibilidade = false;
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
-
-//  _carregarMarcadores() {
-//    Set<Marker> marcadoresLocal = {};
-//
-//    Marker marcador = Marker(
-//        markerId: MarkerId("marcador"),
-//        position: LatLng(-7.685516, -35.516136),
-//        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-//        infoWindow: InfoWindow(title: "Casa"),
-//        onTap: () {
-//          print("click feito");
-//        });
-//
-//    marcadoresLocal.add(marcador);
-//
-//    setState(() {
-//      _marcadores = marcadoresLocal;
-//    });
-//  }
-//
-//  _recuperarLocalizacaoAtual() async {
-//    Position position = await Geolocator()
-//        .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-//    setState(() {
-//      _posicaoCamera = CameraPosition(
-//          target: LatLng(position.latitude, position.longitude), zoom: 17);
-//      _movimentarCamera();
-//    });
-//  }
 
   _movimentarCamera() async {
     GoogleMapController googleMapController = await _controllerMap.future;
@@ -104,7 +75,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     //limpar marcadores
     _marcadores.clear();
     //pesquisa o profissional por area
-
     GoogleMapsPlaces places =
         new GoogleMapsPlaces(apiKey: "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4");
 
@@ -127,18 +97,13 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             "-" +
             localAtual.administrativeArea);
     _lugares.clear();
-
     //_lugares = resultadoBusca.results;
     _lugares = _validarLugares(
         resultadoBusca.results, localAtual.subAdministrativeArea);
-
-    // PlacesSearchResult teste = _lugares[0];
-
     //adiciona marcador por marcador no mapa
     for (PlacesSearchResult item in _lugares) {
       _adicionarMarcadoresDeBusca(item);
     }
-
     //mover camera para cidade
     _irParaLocal(latUsuario, longUsuario, zoom: 8);
   }
@@ -153,22 +118,21 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     String numero = transformarJsonEmNum(json.decode(response.body));
     return numero;
   }
-  
-  verificarHorariodeFuncionamento( PlacesSearchResult item ){
-    if(item.openingHours != null){
+
+  verificarHorariodeFuncionamento(PlacesSearchResult item) {
+    if (item.openingHours != null) {
       bool horario = item.openingHours.openNow;
-      if(horario == null ){
+      if (horario == null) {
         return "Não consta!";
-      } else if(horario){
+      } else if (horario) {
         return "Sim";
-      } else{
+      } else {
         return "Não";
       }
-
     }
-
     return "Não consta!";
   }
+
   transformarJsonEmNum(Map<String, dynamic> json) {
     String numero;
     //transforma o map em list
@@ -197,7 +161,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     _lugares.clear();
 
     _lugares = resultadoBusca.results;
-    //_lugares = _validarLugares(resultadoBusca.results);
 
     //adiciona marcador por marcador no mapa
     for (PlacesSearchResult item in _lugares) {
@@ -208,7 +171,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     List<Placemark> endereco =
         await Geolocator().placemarkFromAddress(_cidadeController.text);
     Placemark local = endereco[0];
-
     _irParaLocal(local.position.latitude, local.position.longitude, zoom: 5);
   }
 
@@ -221,7 +183,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         lugaresValidados.add(item);
       }
     }
-
     return lugaresValidados;
   }
 
@@ -252,163 +213,177 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     _movimentarCamera();
   }
 
-  List<Widget> _criarLista() {
-    //instanciando lista de Widgets
-    List<Widget> listaDeWidget = [];
-    //colocando um container vazio para não dar erro: "lista vazia"
-
-
-//    listaDeWidget.add(
-//      Container(),
-//    );
-
-    //adicionando as caixas com insformações dos lugares
-    for (PlacesSearchResult item in _lugares) {
-      listaDeWidget.add(_caixas(item));
+  _inicializarListaDeSelecao(int quantidadeDeItens) {
+    var controle = 0;
+    while (controle < quantidadeDeItens) {
+      _controleDeSelecao.add(false);
+      controle++;
     }
-    return listaDeWidget;
   }
 
-  Widget _caixas(PlacesSearchResult item) {
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: GestureDetector(
-        onTap: () {
-          _irParaLocal(item.geometry.location.lat, item.geometry.location.lng);
+  _marcarOuDesmarcarCard(int indice) {
+    bool estado = _controleDeSelecao[indice];
+    int quantidadeDeItens = _lugares.length;
+    //limpando lista
+    _controleDeSelecao.clear();
+    _inicializarListaDeSelecao(quantidadeDeItens);
+    //marcando ou desmarcando o elemento selecionado
+    setState(() {
+      if (estado == true) {
+        _controleDeSelecao[indice] = false;
+      } else {
+        _controleDeSelecao[indice] = true;
+      }
+    });
+  }
 
-          setState(() {
-            if (tappedGestureDetector ==1){
-              tappedGestureDetector=0;
-            }else{
-              tappedGestureDetector = 1;
-            }
-          });
-
-
-        },
-        child: Container(
-
-          //decoration:BoxDecoration(border: tappedGestureDetector == 1 ? Border.all(color: Color(0xff1e2e3e), width: 2) : Border.all(color: Colors.transparent),),
-          child: new FittedBox(
-            child: Material(
-              elevation: 4,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Container(
-                    color: Color(0xff25394e),
-                    width: 150,
-                    height: 200,
-                    child: ClipRRect(
-                      child: Container(
-                        padding: EdgeInsets.all(15),
-                        child: Center(
-                          child: Image.asset("imagens/pinoBranco.png"),
+  List<Widget> _criarLista() {
+    //iniciando lista de seleção
+    _inicializarListaDeSelecao(_lugares.length);
+    //instanciando cards
+    List<Widget> listaDeWidget = List.generate(_lugares.length, (i) {
+      var item = _lugares[i];
+      return Padding(
+        padding: const EdgeInsets.all(8),
+        child: GestureDetector(
+          onLongPress: () {
+            //print("oi! "+item.name);
+          },
+          onTap: () {
+            _marcarOuDesmarcarCard(i);
+            _irParaLocal(
+                item.geometry.location.lat, item.geometry.location.lng);
+            print(_controleDeSelecao);
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              border: _controleDeSelecao[i]
+                  ? Border.all(color: Color(0xff1e2e3e), width: 2)
+                  : Border.all(color: Colors.transparent),
+            ),
+            child: new FittedBox(
+              child: Material(
+                elevation: 4,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Container(
+                      color: Color(0xff25394e),
+                      width: 100,
+                      height: 215,
+                      child: ClipRRect(
+                        child: Container(
+                          padding: EdgeInsets.all(0),
+                          child: Center(
+                            child: Image.asset("imagens/pinoBranco.png"),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Container(
-                    width: 200,
-                    child: Padding(
-                      padding: EdgeInsets.all(0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(3, 3, 3, 16),
-                            child: Container(
-                              child: Text(
-                                item.name,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Color(0xff1e2e3e),
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.bold),
+                    Container(
+                      width: 250,
+                      height: 215,
+                      child: Padding(
+                        padding: EdgeInsets.all(0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(3, 3, 3, 16),
+                              child: Container(
+                                child: Text(
+                                  item.name,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Color(0xff1e2e3e),
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(3, 0, 3, 5),
-                            child: Container(
-                              child: Text(
-                                item.formattedAddress.split(", Brazil")[0]+".",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(3, 0, 3, 5),
+                              child: Container(
+                                child: Text(
+                                  item.formattedAddress.split(", Brazil")[0] +
+                                      ".",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              child: FutureBuilder(
-                                future: pegarNumero(item),
-                                builder: (context, numero) {
-                                  if (numero.hasData) {
-                                    return Text(
-                                      "Contato: " + numero.data,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold),
-                                    );
-                                  } else {
-                                    return Text(
-                                      "Contato: Carregando...",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold),
-                                    );
-                                  }
-                                },
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                child: FutureBuilder(
+                                  future: pegarNumero(item),
+                                  builder: (context, numero) {
+                                    if (numero.hasData) {
+                                      return Text(
+                                        "Contato: " + numero.data,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold),
+                                      );
+                                    } else {
+                                      return Text(
+                                        "Contato: Carregando...",
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold),
+                                      );
+                                    }
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              child: Text(
-                                "Aberto agora: "+verificarHorariodeFuncionamento(item),//"Aberto: " + item.openingHours.openNow.toString(),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                child: Text(
+                                  "Aberto agora: " +
+                                      verificarHorariodeFuncionamento(item),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
-                          ),
-                          
-                          Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Container(
-                              child: Text(
-                                "Avaliação: " + item.rating.toString(),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.bold),
+                            Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Container(
+                                child: Text(
+                                  "Avaliação: " + item.rating.toString() + "/5",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14.0,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
+    return listaDeWidget;
   }
 
   _habilitarVisibilidade() {
@@ -659,14 +634,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               margin: EdgeInsets.symmetric(vertical: 40),
               height: 150,
               child: ListView(
-
-                scrollDirection: Axis.horizontal,
-                children: _criarLista()),
+                  scrollDirection: Axis.horizontal, children: _criarLista()),
             ),
           ),
           Visibility(
             visible: !visibilidade,
-            child:Positioned(
+            child: Positioned(
               top: 40,
               right: 0,
               child: Row(
@@ -707,7 +680,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               ),
             ),
           ),
-
         ],
       ),
 
@@ -722,7 +694,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           _pesquisarProfissional();
         },
       ),
-
     );
   }
 }
