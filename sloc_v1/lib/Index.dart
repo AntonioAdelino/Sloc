@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Sloc/TelaBuscarGerente.dart';
@@ -33,6 +32,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   //Atributos seleção
   List<PlacesSearchResult> _lugares = [];
   List<bool> _controleDeSelecao = [];
+  List<bool> _controleDeSelecaoBusca = [];
 
   //Atributos TextField
   TextEditingController _profissionalController = TextEditingController();
@@ -215,9 +215,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   _inicializarListaDeSelecao(int quantidadeDeItens) {
     var controle = 0;
-    while (controle < quantidadeDeItens) {
-      _controleDeSelecao.add(false);
-      controle++;
+    if (quantidadeDeItens != _controleDeSelecao.length) {
+      while (controle < quantidadeDeItens) {
+        _controleDeSelecao.add(false);
+        controle++;
+      }
+      _controleDeSelecao.removeRange(controle, _controleDeSelecao.length);
     }
   }
 
@@ -237,50 +240,96 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     });
   }
 
+  _inicializarListaDeSelecaoBusca(int quantidadeDeItens) {
+    var controle = 0;
+    if (quantidadeDeItens != _controleDeSelecaoBusca.length) {
+      _controleDeSelecaoBusca.clear();
+      while (controle < quantidadeDeItens) {
+        _controleDeSelecaoBusca.add(false);
+        controle++;
+      }
+    }
+  }
+
+  _marcarOuDesmarcarCardBusca(int indice) {
+    bool estado = _controleDeSelecaoBusca[indice];
+    //marcando ou desmarcando o elemento selecionado
+    setState(() {
+      if (estado == true) {
+        _controleDeSelecaoBusca[indice] = false;
+      } else {
+        _controleDeSelecaoBusca[indice] = true;
+      }
+    });
+  }
+
   List<Widget> _criarLista() {
     //iniciando lista de seleção
     _inicializarListaDeSelecao(_lugares.length);
+    _inicializarListaDeSelecaoBusca(_lugares.length);
+    print(_controleDeSelecao.length);
+    print(_controleDeSelecaoBusca.length);
     //instanciando cards
     List<Widget> listaDeWidget = List.generate(_lugares.length, (i) {
       var item = _lugares[i];
       return Padding(
         padding: const EdgeInsets.all(8),
-        child: GestureDetector(
-          onLongPress: () {
-            //print("oi! "+item.name);
-          },
-          onTap: () {
-            _marcarOuDesmarcarCard(i);
-            _irParaLocal(
-                item.geometry.location.lat, item.geometry.location.lng);
-            print(_controleDeSelecao);
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              border: _controleDeSelecao[i]
-                  ? Border.all(color: Color(0xff1e2e3e), width: 2)
-                  : Border.all(color: Colors.transparent),
-            ),
-            child: new FittedBox(
-              child: Material(
-                elevation: 4,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Container(
-                      color: Color(0xff25394e),
-                      width: 100,
-                      height: 215,
-                      child: ClipRRect(
-                        child: Container(
-                          padding: EdgeInsets.all(0),
-                          child: Center(
-                            child: Image.asset("imagens/pinoBranco.png"),
-                          ),
-                        ),
-                      ),
+        child: Container(
+          child: new FittedBox(
+            child: Material(
+              elevation: 4,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Container(
+                    color: _controleDeSelecaoBusca[i]
+                        ? Colors.green
+                        : Color(0xff25394e),
+                    width: 100,
+                    height: 215,
+                    child: FlatButton(
+                      child: _controleDeSelecaoBusca[i]
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(Icons.check_circle, color: Colors.white),
+                                Text(
+                                  "Adicionado",
+                                  style: TextStyle(color: Colors.white, fontSize: 13),
+                                )
+                              ],
+                            )
+                          : Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Icon(Icons.add_circle, color: Colors.white),
+                                Text(
+                                  "Adicionar",
+                                  style: TextStyle(color: Colors.white),
+                                )
+                              ],
+                            ),
+                      onPressed: () {
+                        _marcarOuDesmarcarCardBusca(i);
+                      },
                     ),
-                    Container(
+                  ),
+                  GestureDetector(
+                    onLongPress: () {
+                      //print("oi! "+item.name);
+                    },
+                    onTap: () {
+                      _marcarOuDesmarcarCard(i);
+                      _irParaLocal(item.geometry.location.lat,
+                          item.geometry.location.lng);
+                      //print(_controleDeSelecao);
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: _controleDeSelecao[i]
+                            ? Border.all(color: Color(0xff1e2e3e), width: 2)
+                            : Border.all(color: Colors.transparent),
+                      ),
                       width: 250,
                       height: 215,
                       child: Padding(
@@ -375,8 +424,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -691,6 +740,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         child: Icon(Icons.search, color: Colors.white),
         backgroundColor: Color(0xff1e2e3e),
         onPressed: () {
+          _controleDeSelecao.clear();
+          _controleDeSelecaoBusca.clear();
           _pesquisarProfissional();
         },
       ),
