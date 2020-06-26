@@ -17,6 +17,7 @@ class DbPrimario {
 
   //criar tabelas
   _onCreate(Database db, int version) async {
+    print ("estou aqui");
     //tabela gerentes
     String sql =
         "CREATE TABLE gerentes (id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -27,6 +28,11 @@ class DbPrimario {
     sql = "CREATE TABLE vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR," +
         " cpf VARCHAR, email VARCHAR, senha VARCHAR, idGerente INTEGER," +
         " FOREIGN KEY (idGerente) REFERENCES gerentes (id) ON DELETE CASCADE);";
+    await db.execute(sql);
+
+    //tabela profissionais
+    sql = "CREATE TABLE IF NOT EXISTS profissionais (id INTEGER PRIMARY KEY AUTOINCREMENT, idPlace VARCHAR," +
+        " nome VARCHAR, endereco VARCHAR, contato VARCHAR, avaliacao VARCHAR, lat VARCHAR, long VARCHAR);";
     await db.execute(sql);
   }
 
@@ -48,9 +54,12 @@ class DbPrimario {
   get db async {
     //se já existir retorna db, se não existir cria db
     if (_db != null) {
+      print("ja existe");
       return _db;
     } else {
+      print("vai ini");
       _db = await inicializarDB();
+
       return _db;
     }
   }

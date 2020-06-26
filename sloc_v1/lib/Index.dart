@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:Sloc/dados/dbProfissional.dart';
+import 'package:Sloc/entidades/profissional.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Sloc/TelaBuscarGerente.dart';
@@ -41,7 +43,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   TextEditingController _estadoController = TextEditingController();
 
   //Atributo flag de visibilidade de componentes
-  bool visibilidade = false;
+  bool _visibilidade = false;
+  bool _visibilidadeRota = false;
+
+  //Atributo banco
+  DbProfissional dbProfissional = new DbProfissional();
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
@@ -78,7 +84,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     GoogleMapsPlaces places =
         new GoogleMapsPlaces(apiKey: "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4");
 
-    if (!visibilidade) {
+    if (!_visibilidade) {
       _pesquisarSemEndereco(places);
     } else {
       _pesquisarComEndereco(places);
@@ -311,7 +317,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                             ),
                       onPressed: () {
                         _marcarOuDesmarcarCardBusca(i);
-                      },
+                        },
                     ),
                   ),
                   GestureDetector(
@@ -437,10 +443,17 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   _habilitarVisibilidade() {
     setState(() {
-      if (visibilidade) {
-        visibilidade = false;
+      if (_visibilidade) {
+        _visibilidade = false;
       } else {
-        visibilidade = true;
+        _visibilidade = true;
+      }
+    });
+  }
+  _habilitarVisibilidadeRota() {
+    setState(() {
+      if (!_visibilidadeRota) {
+        _visibilidadeRota = true;
       }
     });
   }
@@ -599,7 +612,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ),
           ),
           Visibility(
-            visible: visibilidade,
+            visible: _visibilidade,
             child: Positioned(
               top: 45,
               left: 0,
@@ -626,7 +639,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ),
           ),
           Visibility(
-            visible: visibilidade,
+            visible: _visibilidade,
             child: Positioned(
               top: 90,
               left: 0,
@@ -653,7 +666,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ),
           ),
           Visibility(
-            visible: visibilidade,
+            visible: _visibilidade,
             child: Positioned(
               top: 90,
               left: 240,
@@ -687,7 +700,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ),
           ),
           Visibility(
-            visible: !visibilidade,
+            visible: !_visibilidade,
             child: Positioned(
               top: 40,
               right: 0,
@@ -708,7 +721,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             ),
           ),
           Visibility(
-            visible: visibilidade,
+            visible: _visibilidade,
             child: Positioned(
               top: 130,
               //left: 310,
@@ -729,6 +742,32 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               ),
             ),
           ),
+
+          Visibility(
+            visible: _visibilidadeRota,
+            child: Positioned(
+              top: 300,
+              left: 0,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  IconButton(
+                      icon: new Icon(
+                        Icons.directions,
+                        color: Color(0xff1e2e3e),
+                        size: 40,
+                      ),
+                      onPressed: () {
+                        _habilitarVisibilidade();
+                      }),
+                  Text("\t\tRota",
+                    style: TextStyle(color: Color(0xff1e2e3e), fontWeight: FontWeight.bold, fontSize: 14),
+                  )
+                ],
+              ),
+            ),
+          ),
+
         ],
       ),
 
@@ -743,6 +782,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           _controleDeSelecao.clear();
           _controleDeSelecaoBusca.clear();
           _pesquisarProfissional();
+          _habilitarVisibilidadeRota();
         },
       ),
     );
