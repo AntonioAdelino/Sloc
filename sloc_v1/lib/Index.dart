@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:Sloc/dados/dbProfissional.dart';
-import 'package:Sloc/entidades/profissional.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Sloc/TelaBuscarGerente.dart';
@@ -13,6 +12,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_polyline_points/flutter_polyline_points.dart' as poly;
 
 class TelaPrincipal extends StatefulWidget {
   @override
@@ -27,9 +27,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   //Atributos Maps
   Completer<GoogleMapController> _controllerMap = Completer();
   Set<Marker> _marcadores = {};
+  Set <Polyline> _polylines = {};
   CameraPosition _posicaoCamera =
       CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 8);
   double latUsuario, longUsuario;
+  double latTG;
+  double lonTG;
+  double lat2 = -7.691178;
+  double lon2 = -35.510659;
 
   //Atributos seleção
   List<PlacesSearchResult> _lugares = [];
@@ -48,6 +53,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   //Atributo banco
   DbProfissional dbProfissional = new DbProfissional();
+
+  //Atributo de rota
+  List<LatLng> polylineCoordinates = [];
+  Map<PolylineId, Polyline> polylines = {};
+  poly.PolylinePoints polylinePoints = poly.PolylinePoints();
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
@@ -265,6 +275,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         _controleDeSelecaoBusca[indice] = false;
       } else {
         _controleDeSelecaoBusca[indice] = true;
+        latTG = _lugares[indice].geometry.location.lat;
+        lonTG =  _lugares[indice].geometry.location.lng;
       }
     });
   }
@@ -273,8 +285,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     //iniciando lista de seleção
     _inicializarListaDeSelecao(_lugares.length);
     _inicializarListaDeSelecaoBusca(_lugares.length);
-    print(_controleDeSelecao.length);
-    print(_controleDeSelecaoBusca.length);
     //instanciando cards
     List<Widget> listaDeWidget = List.generate(_lugares.length, (i) {
       var item = _lugares[i];
@@ -317,12 +327,16 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                             ),
                       onPressed: () {
                         _marcarOuDesmarcarCardBusca(i);
+//                        latTG = item.geometry.location.lat;
+//                        lonTG = item.geometry.location.lng;
+
                         },
                     ),
                   ),
                   GestureDetector(
                     onLongPress: () {
                       //print("oi! "+item.name);
+
                     },
                     onTap: () {
                       _marcarOuDesmarcarCard(i);
@@ -458,6 +472,49 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     });
   }
 
+  _getPolyline() async {
+    poly.PolylineResult result = await polylinePoints
+        .getRouteBetweenCoordinates(
+        "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4",
+        poly.PointLatLng(latUsuario, longUsuario),
+        //poly.PointLatLng(lat2, lon2),
+        poly.PointLatLng(latTG, lonTG),
+        travelMode: poly.TravelMode.driving,
+    );
+    if (result.points.isNotEmpty) {
+      result.points.forEach((poly.PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+        
+      });
+    }
+    _addPolyLine();
+
+  }
+
+  _addPolyLine() {
+    setState(() {
+      Polyline polyline = Polyline(
+          polylineId: PolylineId("rota"),
+          color: Color(0xff1e2e3e),
+          width: 6,
+          points: polylineCoordinates
+      );
+      _polylines.add(polyline);
+
+    });
+
+  }
+
+//  _pegarMenorDistancia() async {
+//
+//    double distancia = await Geolocator().distanceBetween(
+//      startCoordinates.latitude,
+//      startCoordinates.longitude,
+//      destinationCoordinates.latitude,
+//      destinationCoordinates.longitude,
+//    );
+//  }
+
   @override
   void initState() {
     _adicionarListenerLocalizacao();
@@ -585,6 +642,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               mapToolbarEnabled: false,
               compassEnabled: false,
               markers: _marcadores,
+              polylines: _polylines,
             ),
           ),
           Positioned(
@@ -758,7 +816,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         size: 40,
                       ),
                       onPressed: () {
-                        _habilitarVisibilidade();
+                        //fazer o desenho da rota
+                        polylineCoordinates.clear();
+                        _polylines.clear();
+                        _getPolyline();
                       }),
                   Text("\t\tRota",
                     style: TextStyle(color: Color(0xff1e2e3e), fontWeight: FontWeight.bold, fontSize: 14),
