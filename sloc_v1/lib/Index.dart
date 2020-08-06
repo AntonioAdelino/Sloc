@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:Sloc/dados/dbProfissional.dart';
+import 'package:Sloc/entidades/profissional.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Sloc/TelaBuscarGerente.dart';
@@ -40,6 +41,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   List<PlacesSearchResult> _lugares = [];
   List<bool> _controleDeSelecao = [];
   List<bool> _controleDeSelecaoBusca = [];
+  List<String> _listaDeContatos = [];
 
   //Atributos TextField
   TextEditingController _profissionalController = TextEditingController();
@@ -175,7 +177,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             "," +
             _estadoController.text);
     _lugares.clear();
-
     _lugares = resultadoBusca.results;
 
     //adiciona marcador por marcador no mapa
@@ -205,7 +206,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   _adicionarMarcadoresDeBusca(PlacesSearchResult lugar) {
     //criando marcador
     Marker marcador = Marker(
-        markerId: MarkerId(lugar.id),
+        markerId: MarkerId(lugar.placeId),
         position:
             LatLng(lugar.geometry.location.lat, lugar.geometry.location.lng),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
@@ -267,6 +268,17 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     }
   }
 
+  _inicializarListaDeContatos(int quantidadeDeItens) {
+    var controle = 0;
+    if (quantidadeDeItens != _listaDeContatos.length) {
+      _listaDeContatos.clear();
+      while (controle < quantidadeDeItens) {
+        _listaDeContatos.add(null);
+        controle++;
+      }
+    }
+  }
+
   _marcarOuDesmarcarCardBusca(int indice) {
     bool estado = _controleDeSelecaoBusca[indice];
     //marcando ou desmarcando o elemento selecionado
@@ -285,6 +297,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     //iniciando lista de seleção
     _inicializarListaDeSelecao(_lugares.length);
     _inicializarListaDeSelecaoBusca(_lugares.length);
+    _inicializarListaDeContatos(_lugares.length);
     //instanciando cards
     List<Widget> listaDeWidget = List.generate(_lugares.length, (i) {
       var item = _lugares[i];
@@ -391,6 +404,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                   future: pegarNumero(item),
                                   builder: (context, numero) {
                                     if (numero.hasData) {
+                                      _listaDeContatos[i] = numero.data;
                                       return Text(
                                         "Contato: " + numero.data,
                                         textAlign: TextAlign.center,
@@ -492,7 +506,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   }
 
   _addPolyLine() {
-    setState(() {
+    setState(() async {
       Polyline polyline = Polyline(
           polylineId: PolylineId("rota"),
           color: Color(0xff1e2e3e),
@@ -501,19 +515,105 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       );
       _polylines.add(polyline);
 
+      List distancias = await _pegarDistancias();
+      List menorDistancia = _pegarMenorDistancia(distancias);
+      print(menorDistancia);
+
     });
 
   }
 
-//  _pegarMenorDistancia() async {
-//
-//    double distancia = await Geolocator().distanceBetween(
-//      startCoordinates.latitude,
-//      startCoordinates.longitude,
-//      destinationCoordinates.latitude,
-//      destinationCoordinates.longitude,
-//    );
-//  }
+  _pegarDistancias() async {
+
+    List distancias = [];
+
+    for (int i = 0; i< _controleDeSelecaoBusca.length; i++) {
+      if(_controleDeSelecaoBusca[i] == true){
+        double latitude = _lugares[i].geometry.location.lat;
+        double longitude =  _lugares[i].geometry.location.lng;
+
+        double distancia = await Geolocator().distanceBetween(
+          latUsuario,
+          longUsuario,
+          latitude,
+          longitude,
+        );
+
+        String idPlace = _lugares[i].id;
+        String nome = _lugares[i].name;
+        String endereco = _lugares[i].formattedAddress.split(", Brazil")[0]+".";
+        String contato = _listaDeContatos[i];
+        String avaliacao = _lugares[i].rating.toString() + "/5";
+        String latitudeString = latitude.toString();
+        String longitudeString = longitude.toString();
+
+        Profissional profissional = Profissional(
+            idPlace,
+            nome,
+            endereco,
+            contato,
+            avaliacao,
+            latitudeString,
+            longitudeString);
+
+        distancias.add([distancia, profissional]);
+
+
+      }
+    }
+    //print(distancias);
+    return distancias;
+
+  }
+
+  _pegarMenorDistancia(distancias){
+
+    //print(distancias);
+    List menor = distancias[0];
+    //print(distancias.length);
+    for(int i=0; i < distancias.length; i++){
+      if(menor[0] > distancias[i][0]){
+        menor = distancias[i];
+      }
+    }
+
+    for(int i=0; i < distancias.length; i++){
+      if(menor[1].nome == distancias[i][1].nome){
+        distancias.removeAt(i);
+      }
+    }
+
+    return menor;
+
+
+  }
+
+  _instanciarProfissionais() async {
+    List prof = [];
+
+    for (int i = 0; i< _controleDeSelecaoBusca.length; i++) {
+      if (_controleDeSelecaoBusca[i] == true) {
+        String idPlace = _lugares[i].id;
+        String nome = _lugares[i].name;
+        String endereco = _lugares[i].formattedAddress.split(", Brazil")[0]+".";
+        String contato = _listaDeContatos[i];
+        String avaliacao = _lugares[i].rating.toString() + "/5";
+        String latitude = _lugares[i].geometry.location.lat.toString();
+        String longitude = _lugares[i].geometry.location.lng.toString();
+
+        Profissional p = Profissional(
+            idPlace,
+            nome,
+            endereco,
+            contato,
+            avaliacao,
+            latitude,
+            longitude);
+        prof.add(p);
+      }
+    }
+
+  }
 
   @override
   void initState() {
@@ -817,6 +917,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       ),
                       onPressed: () {
                         //fazer o desenho da rota
+                        _instanciarProfissionais();
                         polylineCoordinates.clear();
                         _polylines.clear();
                         _getPolyline();
