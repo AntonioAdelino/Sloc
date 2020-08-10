@@ -28,14 +28,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   //Atributos Maps
   Completer<GoogleMapController> _controllerMap = Completer();
   Set<Marker> _marcadores = {};
-  Set <Polyline> _polylines = {};
+  Set<Polyline> _polylines = {};
   CameraPosition _posicaoCamera =
       CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 8);
-  double latUsuario, longUsuario;
-  double latTG;
-  double lonTG;
-  double lat2 = -7.691178;
-  double lon2 = -35.510659;
+  double latUsuario, longUsuario, latSeguinte, longSeguinte;
 
   //Atributos seleção
   List<PlacesSearchResult> _lugares = [];
@@ -57,9 +53,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   DbProfissional dbProfissional = new DbProfissional();
 
   //Atributo de rota
-  List<LatLng> polylineCoordinates = [];
-  Map<PolylineId, Polyline> polylines = {};
-  poly.PolylinePoints polylinePoints = poly.PolylinePoints();
+  List<LatLng> polylineCoordinates =
+      []; //isso manterá cada coordenada de polilinha como pares Lat e Lng
+  Map<PolylineId, Polyline> polylines = {}; //contem as polilinhas geradas
+  poly.PolylinePoints polylinePoints =
+      poly.PolylinePoints(); // que gera cada polilinha entre o início e o fim
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
@@ -220,6 +218,41 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     });
   }
 
+  _adicionarMarcadoresDePesquisa(List profissionais) {
+    _marcadores.clear();
+
+    Marker marcador = Marker(
+        markerId: MarkerId("inicio"),
+        position: LatLng(latUsuario, longUsuario),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        infoWindow: InfoWindow(title: "Local de Início"),
+        onTap: () {
+          //print("click feito");
+        });
+    //adicionando no mapa
+    setState(() {
+      _marcadores.add(marcador);
+    });
+
+    for (int i = 0; i < profissionais.length; i++) {
+      Marker marcador = Marker(
+          markerId: MarkerId(profissionais[i][1].nome),
+          position: LatLng(double.parse(profissionais[i][1].lat),
+              double.parse(profissionais[i][1].long)),
+          icon:
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+          infoWindow: InfoWindow(title: profissionais[i][1].nome),
+          onTap: () {
+            //print("click feito");
+          });
+      //adicionando no mapa
+      setState(() {
+        _marcadores.add(marcador);
+      });
+    }
+    //criando marcador
+  }
+
   Future<void> _irParaLocal(double lat, double long,
       {double zoom /*Parâmetro opcional*/}) async {
     if (zoom == null) {
@@ -287,8 +320,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         _controleDeSelecaoBusca[indice] = false;
       } else {
         _controleDeSelecaoBusca[indice] = true;
-        latTG = _lugares[indice].geometry.location.lat;
-        lonTG =  _lugares[indice].geometry.location.lng;
       }
     });
   }
@@ -324,7 +355,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                                 Icon(Icons.check_circle, color: Colors.white),
                                 Text(
                                   "Adicionado",
-                                  style: TextStyle(color: Colors.white, fontSize: 13),
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 13),
                                 )
                               ],
                             )
@@ -340,16 +372,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                             ),
                       onPressed: () {
                         _marcarOuDesmarcarCardBusca(i);
-//                        latTG = item.geometry.location.lat;
-//                        lonTG = item.geometry.location.lng;
-
-                        },
+                      },
                     ),
                   ),
                   GestureDetector(
                     onLongPress: () {
                       //print("oi! "+item.name);
-
                     },
                     onTap: () {
                       _marcarOuDesmarcarCard(i);
@@ -478,6 +506,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       }
     });
   }
+
   _habilitarVisibilidadeRota() {
     setState(() {
       if (!_visibilidadeRota) {
@@ -487,50 +516,76 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   }
 
   _getPolyline() async {
-    poly.PolylineResult result = await polylinePoints
-        .getRouteBetweenCoordinates(
-        "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4",
-        poly.PointLatLng(latUsuario, longUsuario),
-        //poly.PointLatLng(lat2, lon2),
-        poly.PointLatLng(latTG, lonTG),
-        travelMode: poly.TravelMode.driving,
-    );
-    if (result.points.isNotEmpty) {
-      result.points.forEach((poly.PointLatLng point) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-        
-      });
-    }
-    _addPolyLine();
+    //pegar distancia
+    List distancias = await _pegarDistancias();
+    //limpar marcadores
+    _adicionarMarcadoresDePesquisa(distancias);
+    //iniciar controlador de loop
+    int controladorLoop = distancias.length;
 
+    //variaveis de controle de lat e long
+    double latA, longA, latB, longB;
+    List anterior = [0, 0];
+
+    for (int i = 0; i < controladorLoop; i++) {
+      //controla o acesso a localização
+      //se for a primeira então o primeiro ponto é o usuário
+      //senão primeiro ponto é o ponto anterior
+      if (i == 0) {
+        latA = latUsuario;
+        longA = longUsuario;
+        List menorDistancia = _pegarMenorDistancia(distancias);
+        latB = double.parse(menorDistancia[1].lat);
+        longB = double.parse(menorDistancia[1].long);
+        anterior[0] = double.parse(menorDistancia[1].lat);
+        anterior[1] = double.parse(menorDistancia[1].long);
+      } else {
+        latA = anterior[0];
+        longA = anterior[1];
+        List menorDistancia = _pegarMenorDistancia(distancias);
+        latB = double.parse(menorDistancia[1].lat);
+        longB = double.parse(menorDistancia[1].long);
+        anterior[0] = double.parse(menorDistancia[1].lat);
+        anterior[1] = double.parse(menorDistancia[1].long);
+      }
+
+      //faz a busca no google pela rota
+      poly.PolylineResult result =
+          await polylinePoints.getRouteBetweenCoordinates(
+        "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4",
+        poly.PointLatLng(latA, longA),
+        poly.PointLatLng(latB, longB),
+        travelMode: poly.TravelMode.driving,
+      );
+      if (result.points.isNotEmpty) {
+        result.points.forEach((poly.PointLatLng point) {
+          //traça os pontos da rota
+          polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+          //desenha a rota no mapa
+          _addPolyLine();
+        });
+      }
+    }
   }
 
   _addPolyLine() {
-    setState(() async {
+    setState(() {
       Polyline polyline = Polyline(
           polylineId: PolylineId("rota"),
           color: Color(0xff1e2e3e),
           width: 6,
-          points: polylineCoordinates
-      );
+          points: polylineCoordinates);
       _polylines.add(polyline);
-
-      List distancias = await _pegarDistancias();
-      List menorDistancia = _pegarMenorDistancia(distancias);
-      print(menorDistancia);
-
     });
-
   }
 
   _pegarDistancias() async {
-
     List distancias = [];
 
-    for (int i = 0; i< _controleDeSelecaoBusca.length; i++) {
-      if(_controleDeSelecaoBusca[i] == true){
+    for (int i = 0; i < _controleDeSelecaoBusca.length; i++) {
+      if (_controleDeSelecaoBusca[i] == true) {
         double latitude = _lugares[i].geometry.location.lat;
-        double longitude =  _lugares[i].geometry.location.lng;
+        double longitude = _lugares[i].geometry.location.lng;
 
         double distancia = await Geolocator().distanceBetween(
           latUsuario,
@@ -541,78 +596,61 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
         String idPlace = _lugares[i].id;
         String nome = _lugares[i].name;
-        String endereco = _lugares[i].formattedAddress.split(", Brazil")[0]+".";
+        String endereco =
+            _lugares[i].formattedAddress.split(", Brazil")[0] + ".";
         String contato = _listaDeContatos[i];
         String avaliacao = _lugares[i].rating.toString() + "/5";
         String latitudeString = latitude.toString();
         String longitudeString = longitude.toString();
 
-        Profissional profissional = Profissional(
-            idPlace,
-            nome,
-            endereco,
-            contato,
-            avaliacao,
-            latitudeString,
-            longitudeString);
+        Profissional profissional = Profissional(idPlace, nome, endereco,
+            contato, avaliacao, latitudeString, longitudeString);
 
         distancias.add([distancia, profissional]);
-
-
       }
     }
     //print(distancias);
     return distancias;
-
   }
 
-  _pegarMenorDistancia(distancias){
-
+  _pegarMenorDistancia(distancias) {
     //print(distancias);
     List menor = distancias[0];
     //print(distancias.length);
-    for(int i=0; i < distancias.length; i++){
-      if(menor[0] > distancias[i][0]){
+    for (int i = 0; i < distancias.length; i++) {
+      if (menor[0] > distancias[i][0]) {
         menor = distancias[i];
       }
     }
 
-    for(int i=0; i < distancias.length; i++){
-      if(menor[1].nome == distancias[i][1].nome){
+    for (int i = 0; i < distancias.length; i++) {
+      if (menor[1].nome == distancias[i][1].nome) {
         distancias.removeAt(i);
       }
     }
 
     return menor;
-
-
   }
 
   _instanciarProfissionais() async {
     List prof = [];
 
-    for (int i = 0; i< _controleDeSelecaoBusca.length; i++) {
+    for (int i = 0; i < _controleDeSelecaoBusca.length; i++) {
       if (_controleDeSelecaoBusca[i] == true) {
         String idPlace = _lugares[i].id;
         String nome = _lugares[i].name;
-        String endereco = _lugares[i].formattedAddress.split(", Brazil")[0]+".";
+        String endereco =
+            _lugares[i].formattedAddress.split(", Brazil")[0] + ".";
         String contato = _listaDeContatos[i];
         String avaliacao = _lugares[i].rating.toString() + "/5";
         String latitude = _lugares[i].geometry.location.lat.toString();
         String longitude = _lugares[i].geometry.location.lng.toString();
 
         Profissional p = Profissional(
-            idPlace,
-            nome,
-            endereco,
-            contato,
-            avaliacao,
-            latitude,
-            longitude);
+            idPlace, nome, endereco, contato, avaliacao, latitude, longitude);
         prof.add(p);
       }
     }
-
   }
 
   @override
@@ -900,7 +938,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               ),
             ),
           ),
-
           Visibility(
             visible: _visibilidadeRota,
             child: Positioned(
@@ -922,14 +959,17 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                         _polylines.clear();
                         _getPolyline();
                       }),
-                  Text("\t\tRota",
-                    style: TextStyle(color: Color(0xff1e2e3e), fontWeight: FontWeight.bold, fontSize: 14),
+                  Text(
+                    "\t\tRota",
+                    style: TextStyle(
+                        color: Color(0xff1e2e3e),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
                   )
                 ],
               ),
             ),
           ),
-
         ],
       ),
 
