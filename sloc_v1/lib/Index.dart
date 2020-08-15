@@ -30,7 +30,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   Set<Marker> _marcadores = {};
   Set<Polyline> _polylines = {};
   CameraPosition _posicaoCamera =
-      CameraPosition(target: LatLng(-0.000000, -0.000000), zoom: 8);
+      CameraPosition(target: LatLng(-15.7991564, -47.8606298), zoom: 0);
   double latUsuario, longUsuario, latSeguinte, longSeguinte;
 
   //Atributos seleção
@@ -79,7 +79,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       //atualiza a posição do marcador
       setState(() {
         _posicaoCamera = CameraPosition(
-            target: LatLng(position.latitude, position.longitude), zoom: 8);
+            target: LatLng(position.latitude, position.longitude), zoom: 5);
         latUsuario = position.latitude;
         longUsuario = position.longitude;
         _movimentarCamera();
@@ -121,7 +121,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       _adicionarMarcadoresDeBusca(item);
     }
     //mover camera para cidade
-    _irParaLocal(latUsuario, longUsuario, zoom: 8);
+    _irParaLocal(latUsuario, longUsuario, zoom: 5);
   }
 
   Future<String> pegarNumero(PlacesSearchResult item) async {
@@ -209,26 +209,23 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             LatLng(lugar.geometry.location.lat, lugar.geometry.location.lng),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
         infoWindow: InfoWindow(title: lugar.name),
-        onTap: () {
-          //print("click feito");
-        });
+        );
     //adicionando no mapa
     setState(() {
       _marcadores.add(marcador);
     });
   }
 
-  _adicionarMarcadoresDePesquisa(List profissionais) {
+  _adicionarMarcadoresDePesquisa(List profissionais)  {
     _marcadores.clear();
-
+    //ImageConfiguration configuration = ImageConfiguration(size: Size(1, 1));
     Marker marcador = Marker(
         markerId: MarkerId("inicio"),
         position: LatLng(latUsuario, longUsuario),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+        //icon: await BitmapDescriptor.fromAssetImage(configuration, "imagens/pino.png"),
+        icon: BitmapDescriptor.defaultMarker,//.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
         infoWindow: InfoWindow(title: "Local de Início"),
-        onTap: () {
-          //print("click feito");
-        });
+        );
     //adicionando no mapa
     setState(() {
       _marcadores.add(marcador);
@@ -240,11 +237,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           position: LatLng(double.parse(profissionais[i][1].lat),
               double.parse(profissionais[i][1].long)),
           icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
           infoWindow: InfoWindow(title: profissionais[i][1].nome),
-          onTap: () {
-            //print("click feito");
-          });
+          );
       //adicionando no mapa
       setState(() {
         _marcadores.add(marcador);
@@ -803,6 +798,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                     hintText: "Digite o profissional",
                     border: InputBorder.none,
                   ),
+                  onSubmitted: (String str){
+                    if(_visibilidade == false){
+                      _controleDeSelecao.clear();
+                      _controleDeSelecaoBusca.clear();
+                      _pesquisarProfissional();
+                      _habilitarVisibilidadeRota();
+                    }
+                  },
                 ),
               ),
             ),
@@ -881,6 +884,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       hintText: "\tUF",
                       border: InputBorder.none,
                     ),
+                    onSubmitted: (String str){
+                      if(_visibilidade == true){
+                        _controleDeSelecao.clear();
+                        _controleDeSelecaoBusca.clear();
+                        _pesquisarProfissional();
+                        _habilitarVisibilidadeRota();
+                      }
+                    },
                   ),
                 ),
               ),
@@ -899,7 +910,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             visible: !_visibilidade,
             child: Positioned(
               top: 40,
-              right: 0,
+              left: 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -921,7 +932,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
             child: Positioned(
               top: 130,
               //left: 310,
-              right: 0,
+              left: 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -938,38 +949,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               ),
             ),
           ),
-          Visibility(
-            visible: _visibilidadeRota,
-            child: Positioned(
-              top: 300,
-              left: 0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  IconButton(
-                      icon: new Icon(
-                        Icons.directions,
-                        color: Color(0xff1e2e3e),
-                        size: 40,
-                      ),
-                      onPressed: () {
-                        //fazer o desenho da rota
-                        _instanciarProfissionais();
-                        polylineCoordinates.clear();
-                        _polylines.clear();
-                        _getPolyline();
-                      }),
-                  Text(
-                    "\t\tRota",
-                    style: TextStyle(
-                        color: Color(0xff1e2e3e),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14),
-                  )
-                ],
-              ),
-            ),
-          ),
+
         ],
       ),
 
@@ -977,15 +957,18 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
       ////////////////////////////////////////////////
 
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.search, color: Colors.white),
-        backgroundColor: Color(0xff1e2e3e),
-        onPressed: () {
-          _controleDeSelecao.clear();
-          _controleDeSelecaoBusca.clear();
-          _pesquisarProfissional();
-          _habilitarVisibilidadeRota();
-        },
+      floatingActionButton: Visibility(
+        visible: _visibilidadeRota,
+        child: FloatingActionButton(
+          child: Icon(Icons.directions, color: Colors.white),
+          backgroundColor: Color(0xff1e2e3e),
+          onPressed: () {
+            _instanciarProfissionais();
+            polylineCoordinates.clear();
+            _polylines.clear();
+            _getPolyline();
+          },
+        ),
       ),
     );
   }
