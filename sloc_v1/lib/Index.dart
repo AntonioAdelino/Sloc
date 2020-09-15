@@ -79,7 +79,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       //atualiza a posição do marcador
       setState(() {
         _posicaoCamera = CameraPosition(
-            target: LatLng(position.latitude, position.longitude), zoom: 5);
+            target: LatLng(position.latitude, position.longitude), zoom: 1);
         latUsuario = position.latitude;
         longUsuario = position.longitude;
         _movimentarCamera();
@@ -121,7 +121,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       _adicionarMarcadoresDeBusca(item);
     }
     //mover camera para cidade
-    _irParaLocal(latUsuario, longUsuario, zoom: 5);
+    _irParaLocal(latUsuario, longUsuario, zoom: 1);
   }
 
   Future<String> pegarNumero(PlacesSearchResult item) async {
@@ -183,10 +183,11 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     }
 
     //mover camera para cidade pesquisada
+    String cidade = _cidadeController.text +"-"+ _estadoController.text;
     List<Placemark> endereco =
-        await Geolocator().placemarkFromAddress(_cidadeController.text);
+        await Geolocator().placemarkFromAddress(cidade);
     Placemark local = endereco[0];
-    _irParaLocal(local.position.latitude, local.position.longitude, zoom: 5);
+    _irParaLocal(local.position.latitude, local.position.longitude, zoom: 1);
   }
 
   _validarLugares(List<PlacesSearchResult> lugares, String cidade) {
@@ -251,11 +252,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   Future<void> _irParaLocal(double lat, double long,
       {double zoom /*Parâmetro opcional*/}) async {
     if (zoom == null) {
-      _posicaoCamera = CameraPosition(target: LatLng(lat, long), zoom: 15);
+      _posicaoCamera = CameraPosition(target: LatLng(lat, long), zoom: 5);
+      _movimentarCamera();
     } else {
       _posicaoCamera = CameraPosition(target: LatLng(lat, long), zoom: zoom);
+      _movimentarCamera();
     }
-    _movimentarCamera();
   }
 
   _inicializarListaDeSelecao(int quantidadeDeItens) {
