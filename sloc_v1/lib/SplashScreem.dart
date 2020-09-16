@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:Sloc/SplashScreamLoc.dart';
 import 'package:flutter/material.dart';
 import 'Index.dart';
 
@@ -13,7 +14,7 @@ class _SplashScreemState extends State<SplashScreem> {
     super.didChangeDependencies();
     Timer(Duration(seconds: 2), () {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => TelaPrincipal()));
+          context, MaterialPageRoute(builder: (_) => SplashScreemLoc()));
     });
   }
 

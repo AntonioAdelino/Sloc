@@ -224,7 +224,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         markerId: MarkerId("inicio"),
         position: LatLng(latUsuario, longUsuario),
         //icon: await BitmapDescriptor.fromAssetImage(configuration, "imagens/pino.png"),
-        icon: BitmapDescriptor.defaultMarker,//.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),//.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
         infoWindow: InfoWindow(title: "Local de Início"),
         );
     //adicionando no mapa
@@ -238,7 +238,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
           position: LatLng(double.parse(profissionais[i][1].lat),
               double.parse(profissionais[i][1].long)),
           icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
           infoWindow: InfoWindow(title: profissionais[i][1].nome),
           );
       //adicionando no mapa
@@ -800,10 +800,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                     hintText: "Digite o profissional",
                     border: InputBorder.none,
                   ),
+                  onTap: (){
+                    _controleDeSelecao.clear();
+                    _controleDeSelecaoBusca.clear();
+                    _lugares.clear();
+                    _marcadores.clear();
+                  },
                   onSubmitted: (String str){
                     if(_visibilidade == false){
-                      _controleDeSelecao.clear();
-                      _controleDeSelecaoBusca.clear();
+
                       _pesquisarProfissional();
                       _habilitarVisibilidadeRota();
                     }
