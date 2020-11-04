@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'package:Sloc/dados/dbProfissional.dart';
 import 'package:Sloc/entidades/profissional.dart';
@@ -32,6 +33,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   CameraPosition _posicaoCamera =
       CameraPosition(target: LatLng(-15.7991564, -47.8606298), zoom: 0);
   double latUsuario, longUsuario, latSeguinte, longSeguinte;
+  Set<Circle> _circles = HashSet<Circle>();
 
   //Atributos seleção
   List<PlacesSearchResult> _lugares = [];
@@ -48,6 +50,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   //Atributo flag de visibilidade de componentes
   bool _visibilidade = false;
   bool _visibilidadeRota = false;
+  bool _visibilidadeIr = false;
 
   //Atributo banco
   DbProfissional dbProfissional = new DbProfissional();
@@ -183,9 +186,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     }
 
     //mover camera para cidade pesquisada
-    String cidade = _cidadeController.text +"-"+ _estadoController.text;
-    List<Placemark> endereco =
-        await Geolocator().placemarkFromAddress(cidade);
+    String cidade = _cidadeController.text + "-" + _estadoController.text;
+    List<Placemark> endereco = await Geolocator().placemarkFromAddress(cidade);
     Placemark local = endereco[0];
     _irParaLocal(local.position.latitude, local.position.longitude, zoom: 1);
   }
@@ -205,28 +207,29 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   _adicionarMarcadoresDeBusca(PlacesSearchResult lugar) {
     //criando marcador
     Marker marcador = Marker(
-        markerId: MarkerId(lugar.placeId),
-        position:
-            LatLng(lugar.geometry.location.lat, lugar.geometry.location.lng),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-        infoWindow: InfoWindow(title: lugar.name),
-        );
+      markerId: MarkerId(lugar.placeId),
+      position:
+          LatLng(lugar.geometry.location.lat, lugar.geometry.location.lng),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+      infoWindow: InfoWindow(title: lugar.name),
+    );
     //adicionando no mapa
     setState(() {
       _marcadores.add(marcador);
     });
   }
 
-  _adicionarMarcadoresDePesquisa(List profissionais)  {
+  _adicionarMarcadoresDePesquisa(List profissionais) {
     _marcadores.clear();
     //ImageConfiguration configuration = ImageConfiguration(size: Size(1, 1));
     Marker marcador = Marker(
-        markerId: MarkerId("inicio"),
-        position: LatLng(latUsuario, longUsuario),
-        //icon: await BitmapDescriptor.fromAssetImage(configuration, "imagens/pino.png"),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),//.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-        infoWindow: InfoWindow(title: "Local de Início"),
-        );
+      markerId: MarkerId("inicio"),
+      position: LatLng(latUsuario, longUsuario),
+      //icon: await BitmapDescriptor.fromAssetImage(configuration, "imagens/pino.png"),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor
+          .hueGreen), //.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+      infoWindow: InfoWindow(title: "Local de Início"),
+    );
     //adicionando no mapa
     setState(() {
       _marcadores.add(marcador);
@@ -234,13 +237,12 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
     for (int i = 0; i < profissionais.length; i++) {
       Marker marcador = Marker(
-          markerId: MarkerId(profissionais[i][1].nome),
-          position: LatLng(double.parse(profissionais[i][1].lat),
-              double.parse(profissionais[i][1].long)),
-          icon:
-              BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-          infoWindow: InfoWindow(title: profissionais[i][1].nome),
-          );
+        markerId: MarkerId(profissionais[i][1].nome),
+        position: LatLng(double.parse(profissionais[i][1].lat),
+            double.parse(profissionais[i][1].long)),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        infoWindow: InfoWindow(title: profissionais[i][1].nome),
+      );
       //adicionando no mapa
       setState(() {
         _marcadores.add(marcador);
@@ -362,8 +364,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                               children: <Widget>[
                                 Icon(Icons.add_circle, color: Colors.white),
                                 Text(
-                                  "Adicionar",
+                                  "Adicionar para visita",
                                   style: TextStyle(color: Colors.white),
+                                  textAlign: TextAlign.center,
                                 )
                               ],
                             ),
@@ -512,6 +515,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     });
   }
 
+  _habilitarVisibilidadeIr() {
+    setState(() {
+      if (!_visibilidadeIr) {
+        _visibilidadeIr = true;
+      }
+    });
+  }
+
   _getPolyline() async {
     //pegar distancia
     List distancias = await _pegarDistancias();
@@ -606,7 +617,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         distancias.add([distancia, profissional]);
       }
     }
-    //print(distancias);
     return distancias;
   }
 
@@ -648,7 +658,70 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         prof.add(p);
       }
     }
+    return prof;
   }
+
+  _acionarVisita() async {
+    //gravar os profissionais visitados
+    List profissionais = await _instanciarProfissionais();
+    //limpar componentes da tela (lista e botões)
+    setState(() {
+      _visibilidadeIr = false;
+      _visibilidadeRota = false;
+      _lugares = _limparListaLugares(profissionais);
+      //lugares -lista de seleção => remove itens
+    });
+
+    //acionar o modo "localizar pontos de visita"
+    var pontos = _criarCercas(profissionais);
+    _criarCirculosNoMapa(pontos);
+    //_ativandoLocalizacaoDeBusca(profissionais);
+  }
+
+  _limparListaLugares(List profissionais) {
+    List<PlacesSearchResult> intersecao = [];
+
+    for (int i = 0; i < profissionais.length; i++) {
+      for (int k = 0; k < _lugares.length; k++) {
+        if (profissionais[i].nome == _lugares[k].name) {
+          intersecao.add(_lugares[k]);
+        }
+      }
+    }
+
+    _lugares.clear();
+    return intersecao;
+  }
+
+  _criarCercas(List profissionais) {
+    var resposta = [];
+    for (int i = 0; i < profissionais.length; i++) {
+      var ponto = [
+        profissionais[i].nome,
+        new LatLng(double.parse(profissionais[i].lat), double.parse(profissionais[i].long))
+      ];
+      resposta.add(ponto);
+    };
+
+    print("\n\n"+resposta.toString()+"\n\n");
+    return resposta;
+  }
+  _criarCirculosNoMapa(pontos){
+    //adicionando os circulos no mapa
+    for ( int i = 0; i < pontos.length; i++) {
+      _circles.add(
+          Circle(
+            circleId: CircleId(pontos[i][0]),
+            center: pontos[i][1],
+            radius: 50,
+            strokeColor: Color(0xff1e2e3e),
+            strokeWidth: 2,
+            fillColor: Color(0xff1e2e3e).withOpacity(0.5),
+          )
+      );
+    }
+  }
+
 
   @override
   void initState() {
@@ -778,6 +851,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               compassEnabled: false,
               markers: _marcadores,
               polylines: _polylines,
+              circles: _circles,
             ),
           ),
           Positioned(
@@ -800,15 +874,14 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                     hintText: "Digite o profissional",
                     border: InputBorder.none,
                   ),
-                  onTap: (){
+                  onTap: () {
                     _controleDeSelecao.clear();
                     _controleDeSelecaoBusca.clear();
                     _lugares.clear();
                     _marcadores.clear();
                   },
-                  onSubmitted: (String str){
-                    if(_visibilidade == false){
-
+                  onSubmitted: (String str) {
+                    if (_visibilidade == false) {
                       _pesquisarProfissional();
                       _habilitarVisibilidadeRota();
                     }
@@ -891,8 +964,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                       hintText: "\tUF",
                       border: InputBorder.none,
                     ),
-                    onSubmitted: (String str){
-                      if(_visibilidade == true){
+                    onSubmitted: (String str) {
+                      if (_visibilidade == true) {
                         _controleDeSelecao.clear();
                         _controleDeSelecaoBusca.clear();
                         _pesquisarProfissional();
@@ -956,7 +1029,33 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
               ),
             ),
           ),
-
+          Visibility(
+            visible: _visibilidadeIr,
+            child: FractionallySizedBox(
+              widthFactor: 0.99,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  RawMaterialButton(
+                    onPressed: () {
+                      _acionarVisita();
+                    },
+                    elevation: 2.0,
+                    fillColor: Colors.green,
+                    padding: EdgeInsets.all(15.0),
+                    shape: CircleBorder(),
+                    child: Text(
+                      "IR",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
 
@@ -965,15 +1064,17 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       ////////////////////////////////////////////////
 
       floatingActionButton: Visibility(
-        visible: _visibilidadeRota,
+        visible: (_visibilidadeRota && !_visibilidade),
         child: FloatingActionButton(
           child: Icon(Icons.directions, color: Colors.white),
           backgroundColor: Color(0xff1e2e3e),
           onPressed: () {
-            _instanciarProfissionais();
+            //_instanciarProfissionais();
             polylineCoordinates.clear();
             _polylines.clear();
+            _circles.clear();
             _getPolyline();
+            _habilitarVisibilidadeIr();
           },
         ),
       ),
