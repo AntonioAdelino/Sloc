@@ -15,6 +15,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart' as poly;
+import 'package:Sloc/TelaRelatorioCheckin.dart';
 
 class TelaPrincipal extends StatefulWidget {
   @override
@@ -236,19 +237,25 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     });
 
     for (int i = 0; i < profissionais.length; i++) {
+      //instanciando lat long
+      double latitude = double.parse(profissionais[i][1].lat);
+      double longitude = double.parse(profissionais[i][1].long);
+      //instanciando marcador
       Marker marcador = Marker(
         markerId: MarkerId(profissionais[i][1].nome),
-        position: LatLng(double.parse(profissionais[i][1].lat),
-            double.parse(profissionais[i][1].long)),
+        position: LatLng(latitude, longitude),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         infoWindow: InfoWindow(title: profissionais[i][1].nome),
+        onTap: () async {
+          int distancia = await _medirDistanciaDoPonto(latitude, longitude);
+          telaCheckin(context, distancia);
+        },
       );
       //adicionando no mapa
       setState(() {
         _marcadores.add(marcador);
       });
     }
-    //criando marcador
   }
 
   Future<void> _irParaLocal(double lat, double long,
@@ -698,30 +705,41 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     for (int i = 0; i < profissionais.length; i++) {
       var ponto = [
         profissionais[i].nome,
-        new LatLng(double.parse(profissionais[i].lat), double.parse(profissionais[i].long))
+        new LatLng(double.parse(profissionais[i].lat),
+            double.parse(profissionais[i].long))
       ];
       resposta.add(ponto);
-    };
+    }
+    ;
 
-    print("\n\n"+resposta.toString()+"\n\n");
+    print("\n\n" + resposta.toString() + "\n\n");
     return resposta;
   }
-  _criarCirculosNoMapa(pontos){
+
+  _criarCirculosNoMapa(pontos) {
     //adicionando os circulos no mapa
-    for ( int i = 0; i < pontos.length; i++) {
-      _circles.add(
-          Circle(
-            circleId: CircleId(pontos[i][0]),
-            center: pontos[i][1],
-            radius: 50,
-            strokeColor: Color(0xff1e2e3e),
-            strokeWidth: 2,
-            fillColor: Color(0xff1e2e3e).withOpacity(0.5),
-          )
-      );
+    for (int i = 0; i < pontos.length; i++) {
+      _circles.add(Circle(
+        circleId: CircleId(pontos[i][0]),
+        center: pontos[i][1],
+        radius: 50,
+        strokeColor: Color(0xff1e2e3e),
+        strokeWidth: 2,
+        fillColor: Color(0xff1e2e3e).withOpacity(0.5),
+      ));
     }
   }
 
+  _medirDistanciaDoPonto(double latitude, double longitude) async {
+    double distancia = await Geolocator().distanceBetween(
+      latUsuario,
+      longUsuario,
+      latitude,
+      longitude,
+    );
+    int distanciaInt = distancia.toInt();
+    return distanciaInt;
+  }
 
   @override
   void initState() {
