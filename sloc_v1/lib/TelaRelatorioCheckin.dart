@@ -1,7 +1,10 @@
+import 'package:Sloc/entidades/visita.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:Sloc/dados/dbVisita.dart';
+import 'package:intl/intl.dart';
 
-telaCheckin(context, distancia) {
+telaCheckin(context, distancia, idProfissional) async {
   if (distancia > 100) {
     return showDialog(
         context: context,
@@ -68,7 +71,18 @@ telaCheckin(context, distancia) {
               FlatButton(
                 color: Colors.green,
                 textColor: Colors.white,
-                onPressed: () => Navigator.pop(context),
+                onPressed: () {
+                  //aqui eu faço a visita
+
+                  //instanciando variáveis
+                  DateTime dataAgora = new DateTime.now();
+                  String data =
+                      DateFormat('dd/MM/yyyy kk:mm').format(dataAgora);
+
+                  //Visita visita = new Visita(1, idProfissional, data, distancia);
+                  //DbVisita  db = new DbVisita();
+                  Navigator.pop(context);
+                },
                 child: Text("Continuar"),
               ),
             ],

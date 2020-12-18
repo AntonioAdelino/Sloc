@@ -17,7 +17,6 @@ class DbPrimario {
 
   //criar tabelas
   _onCreate(Database db, int version) async {
-    print ("estou aqui");
     //tabela gerentes
     String sql =
         "CREATE TABLE gerentes (id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -33,6 +32,14 @@ class DbPrimario {
     //tabela profissionais
     sql = "CREATE TABLE IF NOT EXISTS profissionais (id INTEGER PRIMARY KEY AUTOINCREMENT, idPlace VARCHAR," +
         " nome VARCHAR, endereco VARCHAR, contato VARCHAR, avaliacao VARCHAR, lat VARCHAR, long VARCHAR);";
+    await db.execute(sql);
+
+    //tabela visitas
+    sql =
+        "CREATE TABLE IF NOT EXISTS visitas (id INTEGER PRIMARY KEY AUTOINCREMENT, idVendedor INTEGER," +
+            " idProfissional INTEGER, data VARCHAR, distanciaCheckin INTEGER, " +
+            " FOREIGN KEY (idVendedor) REFERENCES vendedores (id)," +
+            " FOREIGN KEY (idProfissional) REFERENCES profissionais (id)); ";
     await db.execute(sql);
   }
 

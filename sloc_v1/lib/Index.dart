@@ -240,6 +240,8 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       //instanciando lat long
       double latitude = double.parse(profissionais[i][1].lat);
       double longitude = double.parse(profissionais[i][1].long);
+      int idProfissional = profissionais[i][1].id;
+
       //instanciando marcador
       Marker marcador = Marker(
         markerId: MarkerId(profissionais[i][1].nome),
@@ -248,7 +250,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         infoWindow: InfoWindow(title: profissionais[i][1].nome),
         onTap: () async {
           int distancia = await _medirDistanciaDoPonto(latitude, longitude);
-          telaCheckin(context, distancia);
+          telaCheckin(context, distancia, idProfissional);
         },
       );
       //adicionando no mapa
@@ -383,14 +385,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                     ),
                   ),
                   GestureDetector(
-                    onLongPress: () {
-                      //print("oi! "+item.name);
-                    },
                     onTap: () {
                       _marcarOuDesmarcarCard(i);
                       _irParaLocal(item.geometry.location.lat,
                           item.geometry.location.lng);
-                      //print(_controleDeSelecao);
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -620,6 +618,10 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
         Profissional profissional = Profissional(idPlace, nome, endereco,
             contato, avaliacao, latitudeString, longitudeString);
+        DbProfissional dbProfissional = new DbProfissional();
+        int identificador =
+            await dbProfissional.cadastrarProfissional(profissional);
+        profissional.id = identificador;
 
         distancias.add([distancia, profissional]);
       }
@@ -628,9 +630,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   }
 
   _pegarMenorDistancia(distancias) {
-    //print(distancias);
     List menor = distancias[0];
-    //print(distancias.length);
     for (int i = 0; i < distancias.length; i++) {
       if (menor[0] > distancias[i][0]) {
         menor = distancias[i];
@@ -710,9 +710,6 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       ];
       resposta.add(ponto);
     }
-    ;
-
-    print("\n\n" + resposta.toString() + "\n\n");
     return resposta;
   }
 
