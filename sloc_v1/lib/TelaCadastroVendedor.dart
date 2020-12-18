@@ -134,7 +134,6 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
 
     if (resultado != null) {
       _vendedorCadastradoComSucesso(vendedor);
-      print("cadastradooooo: " + vendedor.id.toString());
     }
   }
 
