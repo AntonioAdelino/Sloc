@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'package:Sloc/controladores/visitaControlador.dart';
 import 'package:Sloc/dados/dbProfissional.dart';
 import 'package:Sloc/entidades/profissional.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,6 +39,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   //Atributos seleção
   List<PlacesSearchResult> _lugares = [];
+  List<dynamic> _profissionais = [];
   List<bool> _controleDeSelecao = [];
   List<bool> _controleDeSelecaoBusca = [];
   List<String> _listaDeContatos = [];
@@ -665,6 +667,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
         prof.add(p);
       }
     }
+
     return prof;
   }
 
@@ -676,7 +679,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       _visibilidadeIr = false;
       _visibilidadeRota = false;
       _lugares = _limparListaLugares(profissionais);
-      //lugares -lista de seleção => remove itens
+      _profissionais = profissionais;
     });
 
     //acionar o modo "localizar pontos de visita"
@@ -719,7 +722,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       _circles.add(Circle(
         circleId: CircleId(pontos[i][0]),
         center: pontos[i][1],
-        radius: 50,
+        radius: 100,
         strokeColor: Color(0xff1e2e3e),
         strokeWidth: 2,
         fillColor: Color(0xff1e2e3e).withOpacity(0.5),
@@ -1052,8 +1055,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   RawMaterialButton(
-                    onPressed: () {
-                      _acionarVisita();
+                    onPressed: () async {
+                      await _acionarVisita();
+                      iniciarVisitas(_profissionais, latUsuario, longUsuario);
                     },
                     elevation: 2.0,
                     fillColor: Colors.green,
