@@ -1,3 +1,4 @@
+import 'package:Sloc/controladores/VendedorControlador.dart';
 import 'package:brasil_fields/formatter/cpf_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,8 +15,8 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
 
-  //Atributos DB
-  var _dbVendedor = DbVendedor();
+  //Atributos controlador
+  VendedorControlador vendedorControlador = VendedorControlador();
 
   //Atributos Form
   final _formKey = GlobalKey<FormState>();
@@ -129,17 +130,13 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
 
     Vendedor vendedor = Vendedor(nome, cpf, email, senha);
     vendedor.idGerente = idGerente;
-    int resultado = await _dbVendedor.cadastrarVendedor(vendedor);
-    vendedor.id = resultado;
 
-    if (resultado != null) {
+    int resultado = await vendedorControlador.adicionar(vendedor);
+
+    if ((199 < resultado && resultado < 300)) {
       _vendedorCadastradoComSucesso(vendedor);
     }
   }
-
-  //////////////////////////////////////////////////////////////////
-  //                           CORPO                              //
-  //////////////////////////////////////////////////////////////////
 
   _enviarFormulario() {
     if (_formKey.currentState.validate()) {
@@ -153,6 +150,12 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
       });
     }
   }
+
+
+  //////////////////////////////////////////////////////////////////
+  //                           CORPO                              //
+  //////////////////////////////////////////////////////////////////
+
 
   @override
   Widget build(BuildContext context) {

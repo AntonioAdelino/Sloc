@@ -1,3 +1,4 @@
+import 'package:Sloc/controladores/VendedorControlador.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:Sloc/dados/dbVendedor.dart';
@@ -26,7 +27,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
 
   //Atributos
   TextEditingController _buscaController = TextEditingController();
-  var _dbVendedor = DbVendedor();
+  var _vendedorControlador = VendedorControlador();
   List<Vendedor> _vendedorBusca = [];
 
   //////////////////////////////////////////////////////////////////
@@ -129,7 +130,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
                 color: Colors.grey,
                 textColor: Colors.white,
                 onPressed: () {
-                  _dbVendedor.removerVendedor(id);
+                  _vendedorControlador.deletar(id);
                   setState(() {
                     _vendedorBusca.clear();
                     _buscarVendedor(nome);
@@ -176,21 +177,16 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
   //////////////////////////////////////////////////////////////////
 
   _buscarVendedor(String vendedorNome) async {
-    //_gerenteBusca = null;
-    List gerentes = await _dbVendedor.buscarVendedor(vendedorNome);
+    _vendedorBusca.clear();
+    List<Vendedor> vendedores =
+        await _vendedorControlador.buscarVendedor(vendedorNome);
 
-    //criar as instancias vindas do banco
-    List<Vendedor> listaTemporaria = List<Vendedor>();
-    for (var item in gerentes) {
-      Vendedor vendedor = Vendedor.fromMap(item);
-      listaTemporaria.add(vendedor);
-    }
-    if (listaTemporaria.isEmpty) {
+    if (vendedores.isEmpty) {
       _naoEncontrado();
     }
-    //modificando o State
-    setState(() {
-      _vendedorBusca.addAll(listaTemporaria);
+
+    return setState(() {
+      _vendedorBusca.addAll(vendedores);
     });
   }
 
@@ -202,8 +198,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     Vendedor vendedor = Vendedor(nome, cpf, email, senha);
     vendedor.id = id;
     vendedor.idGerente = idGerente;
-    int resultado = await _dbVendedor.alterarVendedor(vendedor);
-    vendedor.id = resultado;
+    int resultado = await _vendedorControlador.alterar(vendedor);
   }
 
   _exibirTelaAlteracao({Vendedor vendedor}) {
@@ -222,7 +217,8 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
             content: Form(
               key: _formKey,
               autovalidate: _validate,
-              child: ListView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -319,16 +315,13 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
         });
   }
 
-  _enviarFormulario(int id, String cpf, String nome, int idGerente) {
+  _enviarFormulario(int id, String cpf, String nome, int idGerente) async {
     if (_formKey.currentState.validate()) {
       // Sem erros na validação
-
       _alterarGerente(id, cpf, idGerente);
-      setState(() {
-        _vendedorBusca.clear();
-        _buscarVendedor(_buscaController.text);
-        Navigator.pop(context);
-      });
+      _buscarVendedor(_buscaController.text);
+      Navigator.pop(context);
+
     } else {
       // erro de validação
       setState(() {

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Sloc/dados/dbGerente.dart';
+import 'package:Sloc/controladores/GerenteControlador.dart';
 import 'package:Sloc/entidades/gerente.dart';
 
 class TelaBuscarGetente extends StatefulWidget {
@@ -9,7 +9,6 @@ class TelaBuscarGetente extends StatefulWidget {
 }
 
 class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
-
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
@@ -27,7 +26,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
 
   //Atributos
   TextEditingController _buscaController = TextEditingController();
-  var _dbGerente = DbGerente();
+  var _gerenteControlador = GerenteControlador();
   List<Gerente> _gerenteBusca = [];
 
   //////////////////////////////////////////////////////////////////
@@ -130,7 +129,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
                 color: Colors.grey,
                 textColor: Colors.white,
                 onPressed: () {
-                  _dbGerente.removerGerente(id);
+                  _gerenteControlador.deletar(id);
                   setState(() {
                     _gerenteBusca.clear();
                     _buscarGerente(nome);
@@ -177,21 +176,17 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
   //////////////////////////////////////////////////////////////////
 
   _buscarGerente(String gerenteNome) async {
-    //_gerenteBusca = null;
-    List gerentes = await _dbGerente.buscarGerente(gerenteNome);
 
-    //criar as instancias vindas do banco
-    List<Gerente> listaTemporaria = List<Gerente>();
-    for (var item in gerentes) {
-      Gerente gerente = Gerente.fromMap(item);
-      listaTemporaria.add(gerente);
-    }
-    if (listaTemporaria.isEmpty) {
+    _gerenteBusca.clear();
+    List<Gerente> gerentes =
+        await _gerenteControlador.buscarGerente(gerenteNome);
+
+    if (gerentes.isEmpty) {
       _naoEncontrado();
     }
-    //modificando o State
-    setState(() {
-      _gerenteBusca.addAll(listaTemporaria);
+
+    return setState(() {
+      _gerenteBusca.addAll(gerentes);
     });
   }
 
@@ -202,8 +197,7 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
 
     Gerente gerente = Gerente(nome, cpf, email, senha);
     gerente.id = id;
-    int resultado = await _dbGerente.alterarGerente(gerente);
-    gerente.id = resultado;
+    int resultado = await _gerenteControlador.alterar(gerente);
   }
 
   _exibirTelaAlteracao({Gerente gerente}) {
@@ -213,16 +207,18 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
     _senhaController = TextEditingController(text: gerente.senha);
     _confSenhaController = TextEditingController(text: gerente.senha);
 
-    print(gerente.nome);
     showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: Text("Alterar gerente", textAlign: TextAlign.center),
             content: Form(
+
               key: _formKey,
+              // ignore: deprecated_member_use
               autovalidate: _validate,
-              child: ListView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -324,11 +320,8 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
       // Sem erros na validação
 
       _alterarGerente(id, cpf);
-      setState(() {
-        _gerenteBusca.clear();
-        _buscarGerente(_buscaController.text);
-        Navigator.pop(context);
-      });
+      Navigator.pop(context);
+
     } else {
       // erro de validação
       setState(() {
@@ -410,7 +403,6 @@ class _TelaBuscarGetenteState extends State<TelaBuscarGetente> {
                           GestureDetector(
                             onTap: () {
                               _alertaRemocao(gerente.id, _buscaController.text);
-                              print(_buscaController.text);
                               _gerenteBusca.clear();
                               _buscarGerente(_buscaController.text);
                             },

@@ -28,7 +28,7 @@ class Vendedor {
       "cpf"       : this._cpf,
       "email"     : this._email,
       "senha"     : this._senha,
-      "idGerente" : this._idGerente,
+      "gerente"   : this._idGerente,
 
     };
 

@@ -1,3 +1,4 @@
+import 'package:Sloc/controladores/GerenteControlador.dart';
 import 'package:brasil_fields/brasil_fields.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,8 +16,8 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
 
-  //Atributos DB
-  var _dbGerente = DbGerente();
+  //Atributos controlador
+  GerenteControlador gerenteControlador = GerenteControlador();
 
   //Atributos Form
   final _formKey = GlobalKey<FormState>();
@@ -29,6 +30,7 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _senhaController = TextEditingController();
   TextEditingController _confSenhaController = TextEditingController();
+
 
   //////////////////////////////////////////////////////////////////
   //                         VALIDAÇÕES                           //
@@ -127,10 +129,10 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
     String confSenha = _confSenhaController.text;
 
     Gerente gerente = Gerente(nome, cpf, email, senha);
-    int resultado = await _dbGerente.cadastrarGerente(gerente);
-    gerente.id = resultado;
+    int resultado = await gerenteControlador.adicionar(gerente);
 
-    if (resultado != null) {
+
+    if ((199 < resultado && resultado < 300)) {
       _gerenteCadastradoComSucesso(gerente);
     }
   }
@@ -269,7 +271,6 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
                       child: Text("Salvar"),
                       onPressed: () {
                         _enviarFormulario();
-                        //_cadastrarGerente();
                       },
                     ),
                   ],
