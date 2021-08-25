@@ -28,6 +28,9 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
 
+  //Atributos constantes
+  String KEY_GOOGLE_API = "AIzaSyDwxSkolZisErTZW5eI8pm6veaCiEgxZ8w";
+
   //Atributos Maps
   Completer<GoogleMapController> _controllerMap = Completer();
   Set<Marker> _marcadores = {};
@@ -98,7 +101,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     _marcadores.clear();
     //pesquisa o profissional por area
     GoogleMapsPlaces places =
-        new GoogleMapsPlaces(apiKey: "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4");
+        new GoogleMapsPlaces(apiKey: KEY_GOOGLE_API);
 
     if (!_visibilidade) {
       _pesquisarSemEndereco(places);
@@ -135,7 +138,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
     var response = await http.get(
         "https://maps.googleapis.com/maps/api/place/details/json?place_id=" +
             item.placeId +
-            "&fields=formatted_phone_number&key=AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4");
+            "&fields=formatted_phone_number&key="+KEY_GOOGLE_API);
     //trata Json e retorna apenas o numero
     String numero = transformarJsonEmNum(json.decode(response.body));
     return numero;
@@ -567,7 +570,7 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
       //faz a busca no google pela rota
       poly.PolylineResult result =
           await polylinePoints.getRouteBetweenCoordinates(
-        "AIzaSyACKuQtJ1jP69DM4P_9V1B5s8sRXzvQZf4",
+        KEY_GOOGLE_API,
         poly.PointLatLng(latA, longA),
         poly.PointLatLng(latB, longB),
         travelMode: poly.TravelMode.driving,
