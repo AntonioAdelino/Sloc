@@ -5,6 +5,6 @@ void main() {
   runApp(MaterialApp(
     home: SplashScreem(),
     theme: ThemeData(
-        primaryColor: Color(0xff1e2e3e), accentColor: Color(0xff25394e)),
+        primaryColor: Color(0xff1e2e3e), colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Color(0xff25394e))),
   ));
 }
