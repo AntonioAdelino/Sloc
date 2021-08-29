@@ -1,6 +1,9 @@
+import 'package:Sloc/TelaCadastroGerente.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Sloc/TelaCadastroGerente.dart';
+
+import 'Index.dart';
+import 'controladores/LoginControlador.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -8,6 +11,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  LoginControlador login = new LoginControlador();
 
   TextEditingController _emailController = TextEditingController();
   TextEditingController _senhaController = TextEditingController();
@@ -34,13 +39,11 @@ class _LoginState extends State<Login> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(color: Color(0xff315a7d)),
+        decoration: BoxDecoration(color: Color(0xff1e2e3e)),
         padding: EdgeInsets.all(16),
         child: Center(
           child: SingleChildScrollView(
@@ -51,8 +54,8 @@ class _LoginState extends State<Login> {
                   padding: EdgeInsets.only(bottom: 32),
                   child: Image.asset(
                     "imagens/logoBranco.png",
-                    width: 200,
-                    height: 200,
+                    width: 180,
+                    height: 180,
                   ),
                 ),
                 Padding(
@@ -97,7 +100,21 @@ class _LoginState extends State<Login> {
                     ),
                     color: Colors.green,
                     padding: EdgeInsets.fromLTRB(40, 10, 40, 10),
-                    onPressed: () {},
+                    onPressed: () async {
+                      List resposta = await login.fazerLogin(
+                          _emailController.text, _senhaController.text);
+                      if (resposta == null) {
+                        print("USER NÃO CADASTRADO!");
+                      } else if (resposta[1] == 1) {
+                        print("É GERENTE!");
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) => TelaPrincipal()));
+                      } else if (resposta[1] == 0) {
+                        print("É VENDEDOR!");
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (_) => TelaPrincipal()));
+                      }
+                    },
                   ),
                 ),
                 Center(

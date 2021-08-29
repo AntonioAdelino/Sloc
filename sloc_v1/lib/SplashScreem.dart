@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:Sloc/SplashScreamLoc.dart';
+
+import 'package:Sloc/Login.dart';
 import 'package:flutter/material.dart';
-import 'Index.dart';
 
 class SplashScreem extends StatefulWidget {
   @override
@@ -14,18 +14,25 @@ class _SplashScreemState extends State<SplashScreem> {
     super.didChangeDependencies();
     Timer(Duration(seconds: 2), () {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => SplashScreemLoc()));
+          context, MaterialPageRoute(builder: (_) => Login()));
     });
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         color: Color(0xff1e2e3e),
         padding: EdgeInsets.all(90),
         child: Center(
-          child: Image.asset("imagens/logoBranco.png"),
+          child: Text(
+            "Lembre-se de ativar a localização",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
         ),
       ),
     );
