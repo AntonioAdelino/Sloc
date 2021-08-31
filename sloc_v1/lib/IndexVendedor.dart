@@ -1,6 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
-import 'package:Sloc/controladores/visitaControlador.dart';
+import 'package:Sloc/controladores/VisitaControlador.dart';
 import 'package:Sloc/dados/dbProfissional.dart';
 import 'package:Sloc/entidades/profissional.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,12 +18,14 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_polyline_points/flutter_polyline_points.dart' as poly;
 import 'package:Sloc/TelaRelatorioCheckin.dart';
 
-class TelaPrincipal extends StatefulWidget {
+import 'entidades/vendedor.dart';
+
+class IndexVendedor extends StatefulWidget {
   @override
-  _TelaPrincipalState createState() => _TelaPrincipalState();
+  _IndexVendedorState createState() => _IndexVendedorState();
 }
 
-class _TelaPrincipalState extends State<TelaPrincipal> {
+class _IndexVendedorState extends State<IndexVendedor> {
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
@@ -756,96 +758,15 @@ class _TelaPrincipalState extends State<TelaPrincipal> {
 
   @override
   Widget build(BuildContext context) {
+
+    Map objeto = ModalRoute.of(context).settings.arguments;
+    Vendedor vendedor = objeto["objeto"];
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text("Sloc"),
         backgroundColor: Color(0xff1e2e3e),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.all(0),
-          children: <Widget>[
-            DrawerHeader(
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
-              ),
-              decoration: BoxDecoration(
-                color: Color(0xff1e2e3e),
-              ),
-            ),
-            ExpansionTile(
-              leading: Icon(Icons.people),
-              title: Text(
-                "Cadastrar",
-                style: TextStyle(fontSize: 16),
-              ),
-              children: <Widget>[
-                ListTile(
-                  title: Text(
-                    'Gerente',
-                    style: TextStyle(fontSize: 15, color: Colors.black87),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => TelaCadastroGerente()));
-                  },
-                ),
-                ListTile(
-                  title: Text(
-                    'Vendedor',
-                    style: TextStyle(fontSize: 15, color: Colors.black87),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => TelaCadastroVendedor()));
-                  },
-                ),
-              ],
-            ),
-            ExpansionTile(
-              leading: Icon(Icons.search),
-              title: Text(
-                "Pesquisar",
-                style: TextStyle(fontSize: 16),
-              ),
-              children: <Widget>[
-                ListTile(
-                  title: Text(
-                    'Gerente',
-                    style: TextStyle(fontSize: 15, color: Colors.black87),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => TelaBuscarGetente()));
-                  },
-                ),
-                ListTile(
-                  title: Text(
-                    'Vendedor',
-                    style: TextStyle(fontSize: 15, color: Colors.black87),
-                  ),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => TelaBuscarVendedor()));
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
 
       //////////////////////////////////////////////////////////////////

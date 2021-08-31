@@ -103,13 +103,12 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
               "Cadastro realizado!",
               textAlign: TextAlign.center,
             ),
-            content: Text(gerente.nome + " foi cadastrado com sucesso"),
+            content: Text(gerente.nome + " foi cadastrado(a) com sucesso"),
             actions: <Widget>[
               FlatButton(
                 color: Colors.grey,
                 textColor: Colors.white,
-                //textColor: Colors.grey,
-                onPressed: () => Navigator.pop(context),
+                onPressed: () => _navegarParaIndex(gerente, "/IndexGerente"),
                 child: Text("Ok"),
               ),
             ],
@@ -150,6 +149,11 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
     }
   }
 
+  void _navegarParaIndex(Object objeto, String rota) {
+    Navigator.pushReplacementNamed(context, rota,
+        arguments: {"objeto": objeto});
+  }
+
   //////////////////////////////////////////////////////////////////
   //                           CORPO                              //
   //////////////////////////////////////////////////////////////////
@@ -162,7 +166,6 @@ class _TelaCadastroGerenteState extends State<TelaCadastroGerente> {
           backgroundColor: Color(0xff1e2e3e),
         ),
         body: Container(
-          //padding: EdgeInsets.fromLTRB(5, 10, 5, 10),
           child: Form(
             key: _formKey,
             autovalidate: _validate,

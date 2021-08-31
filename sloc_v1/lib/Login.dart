@@ -2,7 +2,6 @@ import 'package:Sloc/TelaCadastroGerente.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'Index.dart';
 import 'controladores/LoginControlador.dart';
 
 class Login extends StatefulWidget {
@@ -11,22 +10,21 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-
   LoginControlador login = new LoginControlador();
 
   TextEditingController _emailController = TextEditingController();
   TextEditingController _senhaController = TextEditingController();
 
-
   String _validarEmail(String value) {
-    String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@'+
-        '((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))';
+    String pattern =
+        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@' +
+            '((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))';
     RegExp regExp = new RegExp(pattern);
     if (value.length == 0) {
       return "Informe o Email";
-    } else if(!regExp.hasMatch(value)){
+    } else if (!regExp.hasMatch(value)) {
       return "Email inválido";
-    }else {
+    } else {
       return null;
     }
   }
@@ -34,9 +32,14 @@ class _LoginState extends State<Login> {
   String _validarSenha(String value) {
     if (value.length == 0) {
       return "Informe a senha";
-    }else {
+    } else {
       return null;
     }
+  }
+
+  void _navegarParaIndex(Object objeto, String rota) {
+    Navigator.pushReplacementNamed(context, rota,
+        arguments: {"objeto": objeto});
   }
 
   @override
@@ -62,7 +65,6 @@ class _LoginState extends State<Login> {
                   padding: EdgeInsets.only(bottom: 8),
                   child: TextField(
                     controller: _emailController,
-                    autofocus: true,
                     keyboardType: TextInputType.emailAddress,
                     style: TextStyle(fontSize: 16),
                     decoration: InputDecoration(
@@ -104,15 +106,10 @@ class _LoginState extends State<Login> {
                       List resposta = await login.fazerLogin(
                           _emailController.text, _senhaController.text);
                       if (resposta == null) {
-                        print("USER NÃO CADASTRADO!");
                       } else if (resposta[1] == 1) {
-                        print("É GERENTE!");
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (_) => TelaPrincipal()));
+                        _navegarParaIndex(resposta[0], "/IndexGerente");
                       } else if (resposta[1] == 0) {
-                        print("É VENDEDOR!");
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (_) => TelaPrincipal()));
+                        _navegarParaIndex(resposta[0], "/IndexVendedor");
                       }
                     },
                   ),
@@ -125,7 +122,10 @@ class _LoginState extends State<Login> {
                           fontSize: 14,
                         )),
                     onTap: () {
-                      TelaCadastroGerente();
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => TelaCadastroGerente()));
                     },
                   ),
                 ),

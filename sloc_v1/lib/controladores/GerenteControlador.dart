@@ -1,12 +1,14 @@
 import 'dart:convert';
+
 import 'package:Sloc/entidades/gerente.dart';
 import 'package:http/http.dart' as http;
 
 class GerenteControlador {
+  String url = "http://192.168.0.113:8080/gerentes";
+
   Future<List> listarTodos() async {
     //faz consulta web
-    var resposta =
-        await http.get("https://servidorsloc.herokuapp.com/gerentes");
+    var resposta = await http.get(url);
     //captura o json da resposta http
     List resultado = json.decode(resposta.body);
     //retorna a lista de gerentes
@@ -39,10 +41,8 @@ class GerenteControlador {
     //converte gerente para json
     var g = json.encode(gerente.toMap());
     //faz consulta web
-    var resposta = await http.post(
-        "https://servidorsloc.herokuapp.com/gerentes",
-        headers: {"Content-Type": "application/json"},
-        body: g);
+    var resposta = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: g);
 
     return resposta.statusCode;
   }
@@ -51,7 +51,7 @@ class GerenteControlador {
     //converte gerente para json
     var g = json.encode(gerente.toMap());
     //faz consulta web
-    var resposta = await http.put("https://servidorsloc.herokuapp.com/gerentes",
+    var resposta = await http.put(url,
         headers: {"Content-Type": "application/json"}, body: g);
 
     return resposta.statusCode;
@@ -61,8 +61,7 @@ class GerenteControlador {
     var g = json.encode(idGerente);
     //faz consulta web
     var client = http.Client();
-    var resposta = await client.send(http.Request(
-        "DELETE", Uri.parse("https://servidorsloc.herokuapp.com/gerentes"))
+    var resposta = await client.send(http.Request("DELETE", Uri.parse(url))
       ..headers["Content-Type"] = "application/json"
       ..body = g);
     return resposta;
