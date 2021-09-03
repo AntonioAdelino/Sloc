@@ -1,22 +1,19 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
+
+import 'package:Sloc/TelaRelatorioCheckin.dart';
 import 'package:Sloc/controladores/VisitaControlador.dart';
 import 'package:Sloc/dados/dbProfissional.dart';
 import 'package:Sloc/entidades/profissional.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Sloc/TelaBuscarGerente.dart';
-import 'package:Sloc/TelaCadastroGerente.dart';
-import 'package:Sloc/TelaCadastroVendedor.dart';
 import 'package:flutter/painting.dart';
-import 'TelaBuscarVendedor.dart';
-import 'dart:async';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart' as poly;
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_polyline_points/flutter_polyline_points.dart' as poly;
-import 'package:Sloc/TelaRelatorioCheckin.dart';
 
 import 'entidades/vendedor.dart';
 

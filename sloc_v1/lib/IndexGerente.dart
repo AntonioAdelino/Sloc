@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:Sloc/TelaCadastroVendedor.dart';
 import 'package:Sloc/TelaRelatorioCheckin.dart';
 import 'package:Sloc/controladores/VisitaControlador.dart';
 import 'package:Sloc/dados/dbProfissional.dart';
@@ -20,8 +19,6 @@ import 'TelaBuscarVendedor.dart';
 import 'entidades/gerente.dart';
 
 class IndexGerente extends StatefulWidget {
-  final Object gerente;
-  IndexGerente({this.gerente});
   @override
   _IndexGerenteState createState() => _IndexGerenteState();
 }
@@ -747,6 +744,11 @@ class _IndexGerenteState extends State<IndexGerente> {
     return distanciaInt;
   }
 
+  void _navegarParaTela(Object objeto, String rota) {
+    Navigator.pushNamed(context, rota,
+        arguments: {"objeto": objeto});
+  }
+
   @override
   void initState() {
     _adicionarListenerLocalizacao();
@@ -792,10 +794,7 @@ class _IndexGerenteState extends State<IndexGerente> {
               ),
               trailing: Icon(Icons.arrow_forward, color: Color(0xff1e2e3e)),
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TelaCadastroVendedor()));
+                _navegarParaTela(gerente, "/CadastroVendedor");
               },
             ),
             ListTile(

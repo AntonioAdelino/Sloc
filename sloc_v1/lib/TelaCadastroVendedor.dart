@@ -2,7 +2,8 @@ import 'package:Sloc/controladores/VendedorControlador.dart';
 import 'package:brasil_fields/formatter/cpf_input_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:Sloc/dados/dbVendedor.dart';
+
+import 'entidades/gerente.dart';
 import 'entidades/vendedor.dart';
 
 class TelaCadastroVendedor extends StatefulWidget {
@@ -29,7 +30,6 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _senhaController = TextEditingController();
   TextEditingController _confSenhaController = TextEditingController();
-  TextEditingController _idGerenteController = TextEditingController();
 
   //////////////////////////////////////////////////////////////////
   //                         VALIDAÇÕES                           //
@@ -120,16 +120,14 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
 
-  _cadastrarVendedor() async {
+  _cadastrarVendedor(Gerente gerente) async {
     String nome = _nomeController.text;
     String cpf = _cpfController.text;
     String email = _emailController.text;
     String senha = _senhaController.text;
-    String confSenha = _confSenhaController.text;
-    int idGerente = int.parse(_idGerenteController.text);
 
     Vendedor vendedor = Vendedor(nome, cpf, email, senha);
-    vendedor.idGerente = idGerente;
+    vendedor.idGerente = gerente.id;
 
     int resultado = await vendedorControlador.adicionar(vendedor);
 
@@ -138,10 +136,10 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
     }
   }
 
-  _enviarFormulario() {
+  _enviarFormulario(Gerente gerente) {
     if (_formKey.currentState.validate()) {
       // Sem erros na validação
-      _cadastrarVendedor();
+      _cadastrarVendedor(gerente);
       _formKey.currentState.reset();
     } else {
       // erro de validação
@@ -159,6 +157,10 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
 
   @override
   Widget build(BuildContext context) {
+
+    Map objeto = ModalRoute.of(context).settings.arguments;
+    Gerente gerente = objeto["objeto"];
+
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -255,17 +257,6 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
                     },
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(10, 0, 10, 20),
-                  child: TextFormField(
-                    controller: _idGerenteController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.lock_outline),
-                      labelText: "Código do Gerente",
-                    ),
-                  ),
-                ),
                 Row(
                   children: <Widget>[
                     Padding(
@@ -285,7 +276,7 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
                       textColor: Colors.white,
                       child: Text("Salvar"),
                       onPressed: () {
-                        _enviarFormulario();
+                        _enviarFormulario(gerente);
                         //_cadastrarGerente();
                       },
                     ),
