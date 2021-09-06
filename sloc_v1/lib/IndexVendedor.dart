@@ -15,6 +15,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
 
+import 'dados/dbVendedor.dart';
 import 'entidades/vendedor.dart';
 
 class IndexVendedor extends StatefulWidget {
@@ -743,6 +744,12 @@ class _IndexVendedorState extends State<IndexVendedor> {
     return distanciaInt;
   }
 
+  void _sair() {
+    DbVendedor dbVendedor = DbVendedor();
+    dbVendedor.deletarVendedores();
+    Navigator.pushReplacementNamed(context, "/Login");
+  }
+
   @override
   void initState() {
     _adicionarListenerLocalizacao();
@@ -764,6 +771,36 @@ class _IndexVendedorState extends State<IndexVendedor> {
       appBar: AppBar(
         title: Text("Sloc"),
         backgroundColor: Color(0xff1e2e3e),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.all(0),
+          children: <Widget>[
+            UserAccountsDrawerHeader(
+              accountName: Text(vendedor.nome,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              accountEmail:
+                  Text(vendedor.email, style: TextStyle(fontSize: 14)),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.white,
+                child: Text(
+                  vendedor.nome[0],
+                  style: TextStyle(fontSize: 40.0, color: Color(0xff1e2e3e)),
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.logout, color: Color(0xff1e2e3e)),
+              title: Text(
+                'Sair',
+                style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
+              ),
+              onTap: () {
+                _sair();
+              },
+            ),
+          ],
+        ),
       ),
 
       //////////////////////////////////////////////////////////////////

@@ -42,6 +42,28 @@ class _LoginState extends State<Login> {
         arguments: {"objeto": objeto});
   }
 
+  _erroLogin() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "ERRO!",
+              textAlign: TextAlign.center,
+            ),
+            content: Text("Email ou senha incorretos.\nPor favor confira as informações e tente novamente."),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.grey,
+                textColor: Colors.white,
+                onPressed: () => Navigator.pop(context),
+                child: Text("Ok"),
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +128,7 @@ class _LoginState extends State<Login> {
                       List resposta = await login.fazerLogin(
                           _emailController.text, _senhaController.text);
                       if (resposta == null) {
+                        _erroLogin();
                       } else if (resposta[1] == 1) {
                         _navegarParaIndex(resposta[0], "/IndexGerente");
                       } else if (resposta[1] == 0) {

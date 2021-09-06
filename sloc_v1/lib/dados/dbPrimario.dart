@@ -25,8 +25,9 @@ class DbPrimario {
 
     //tabela vendedores
     sql = "CREATE TABLE vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR," +
-        " cpf VARCHAR, email VARCHAR, senha VARCHAR, idGerente INTEGER," +
-        " FOREIGN KEY (idGerente) REFERENCES gerentes (id) ON DELETE CASCADE);";
+        " cpf VARCHAR, email VARCHAR, senha VARCHAR, gerente INTEGER);";
+    //criação do banco estruturado segue o sql com a linha abaixo
+    //+ " FOREIGN KEY (idGerente) REFERENCES gerentes (id) ON DELETE CASCADE);";
     await db.execute(sql);
 
     //tabela profissionais
@@ -61,12 +62,9 @@ class DbPrimario {
   get db async {
     //se já existir retorna db, se não existir cria db
     if (_db != null) {
-      print("ja existe");
       return _db;
     } else {
-      print("vai ini");
       _db = await inicializarDB();
-
       return _db;
     }
   }

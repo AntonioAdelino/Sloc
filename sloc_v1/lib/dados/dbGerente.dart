@@ -46,7 +46,21 @@ class DbGerente {
     var bancoDados = await banco.db;
     String sql = "SELECT * FROM $nomeTabela WHERE nome LIKE '%$gerenteNome%'";
     List gerentes = await bancoDados.rawQuery(sql);
-    print("\n\n" + gerentes.toString());
     return gerentes;
+  }
+
+  deletarGerentes() async {
+    var bancoDados = await banco.db;
+    String sql = "DROP TABLE $nomeTabela";
+    await bancoDados.execute(sql);
+
+    sql =
+        "CREATE TABLE vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR," +
+            " cpf VARCHAR, email VARCHAR, senha VARCHAR, gerente INTEGER);";
+    await bancoDados.rawQuery(sql);
+
+    sql = "CREATE TABLE $nomeTabela (id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        " nome VARCHAR, cpf VARCHAR, email VARCHAR, senha VARCHAR);";
+    await bancoDados.rawQuery(sql);
   }
 }

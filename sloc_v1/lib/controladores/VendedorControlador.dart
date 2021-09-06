@@ -3,7 +3,9 @@ import 'package:Sloc/entidades/vendedor.dart';
 import 'package:http/http.dart' as http;
 
 class VendedorControlador {
-  String url = "http://192.168.0.113:8080/vendedores";
+  // 10.0.0.192 machados
+  // 192.168.0.113 garanhuns
+  String url = "http://10.0.0.192:8080/vendedores";
 
   Future<List> listarTodos() async {
     //faz consulta web

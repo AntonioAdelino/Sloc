@@ -1,4 +1,5 @@
 import 'package:Sloc/entidades/vendedor.dart';
+
 import 'dbPrimario.dart';
 
 /*
@@ -47,7 +48,21 @@ class DbVendedor {
     var bancoDados = await banco.db;
     String sql = "SELECT * FROM $nomeTabela WHERE nome LIKE '%$vendedorNome%'";
     List vendedores = await bancoDados.rawQuery(sql);
-    print("\n\n" + vendedores.toString());
     return vendedores;
+  }
+
+  deletarVendedores() async {
+    var bancoDados = await banco.db;
+    String sql = "DROP TABLE $nomeTabela";
+    await bancoDados.execute(sql);
+
+    sql = "CREATE TABLE gerentes (id INTEGER PRIMARY KEY AUTOINCREMENT," +
+        " nome VARCHAR, cpf VARCHAR, email VARCHAR, senha VARCHAR);";
+    await bancoDados.rawQuery(sql);
+
+    sql =
+        "CREATE TABLE $nomeTabela (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR," +
+            " cpf VARCHAR, email VARCHAR, senha VARCHAR, gerente INTEGER);";
+    await bancoDados.rawQuery(sql);
   }
 }

@@ -16,6 +16,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
 
 import 'TelaBuscarVendedor.dart';
+import 'dados/dbGerente.dart';
 import 'entidades/gerente.dart';
 
 class IndexGerente extends StatefulWidget {
@@ -749,6 +750,12 @@ class _IndexGerenteState extends State<IndexGerente> {
         arguments: {"objeto": objeto});
   }
 
+  void _sair() {
+    DbGerente dbGerente = DbGerente();
+    dbGerente.deletarGerentes();
+    Navigator.pushReplacementNamed(context, "/Login");
+  }
+
   @override
   void initState() {
     _adicionarListenerLocalizacao();
@@ -788,26 +795,36 @@ class _IndexGerenteState extends State<IndexGerente> {
               ),
             ),
             ListTile(
+              leading: Icon(Icons.person_add_alt_1_sharp, color: Color(0xff1e2e3e)),
               title: Text(
                 'Cadastrar novo vendedor',
                 style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
               ),
-              trailing: Icon(Icons.arrow_forward, color: Color(0xff1e2e3e)),
               onTap: () {
                 _navegarParaTela(gerente, "/CadastroVendedor");
               },
             ),
             ListTile(
+              leading: Icon(Icons.person_search_sharp, color: Color(0xff1e2e3e)),
               title: Text(
                 'Procurar vendedor',
                 style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
               ),
-              trailing: Icon(Icons.arrow_forward, color: Color(0xff1e2e3e)),
               onTap: () {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
                         builder: (context) => TelaBuscarVendedor()));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout, color: Color(0xff1e2e3e)),
+              title: Text(
+                'Sair',
+                style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
+              ),
+              onTap: () {
+                _sair();
               },
             ),
           ],
