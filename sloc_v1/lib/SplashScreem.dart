@@ -23,8 +23,6 @@ class _SplashScreemState extends State<SplashScreem> {
       return [gerentes[0], 1];
     }
     if (!vendedores.isEmpty) {
-      var a = [vendedores[0], 0];
-      var b ='a';
       return [vendedores[0], 0];
     }
     if (gerentes.isEmpty && vendedores.isEmpty) {
