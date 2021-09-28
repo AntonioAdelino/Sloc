@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 class VendedorControlador {
   // 10.0.0.192 machados
   // 192.168.0.113 garanhuns
-  String url = "http://10.0.0.192:8080/vendedores";
+  String url = "http://192.168.0.113:8080/vendedores";
 
   Future<List> listarTodos() async {
     //faz consulta web
@@ -42,7 +42,7 @@ class VendedorControlador {
   Future adicionar(Vendedor vendedor) async {
     //converte vendedor para json
     var intermediario = vendedor.toMap();
-    intermediario["gerente"] = {"id": vendedor.idGetente};
+    intermediario["gerente"] = {"id": vendedor.gerente};
     var v = json.encode(intermediario);
     //faz consulta web
     var resposta = await http.post(

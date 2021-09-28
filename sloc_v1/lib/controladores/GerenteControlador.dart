@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 class GerenteControlador {
   // machados 10.0.0.192
   // garanhuns 192.168.0.113
-  String url = "http://10.0.0.192:8080/gerentes";
+  String url = "http://192.168.0.113:8080/gerentes";
 
   Future<List> listarTodos() async {
     //faz consulta web

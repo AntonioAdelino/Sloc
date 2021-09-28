@@ -66,13 +66,13 @@ class _SplashScreemState extends State<SplashScreem> {
           var cpf = vendedorBanco['cpf'] as String;
           var email = vendedorBanco['email'] as String;
           var senha = vendedorBanco['senha'] as String;
-          var idGerente = vendedorBanco['idGerente'] as int;
+          var gerente = vendedorBanco['gerente'] as int;
 
           Vendedor vendedor = new Vendedor(nome, cpf, email, senha);
           vendedor.id = id;
-          vendedor.idGerente = idGerente;
+          vendedor.gerente = gerente;
 
-          _navegarPara("/IndexVendedor", objeto: resposta[0]);
+          _navegarPara("/IndexVendedor", objeto: vendedor);
         }
     });
   }

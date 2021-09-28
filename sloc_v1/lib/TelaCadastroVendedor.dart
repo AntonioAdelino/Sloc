@@ -127,7 +127,7 @@ class _TelaCadastroVendedorState extends State<TelaCadastroVendedor> {
     String senha = _senhaController.text;
 
     Vendedor vendedor = Vendedor(nome, cpf, email, senha);
-    vendedor.idGerente = gerente.id;
+    vendedor.gerente = gerente.id;
 
     int resultado = await vendedorControlador.adicionar(vendedor);
 

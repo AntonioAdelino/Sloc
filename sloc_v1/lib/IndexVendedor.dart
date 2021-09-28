@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:Sloc/TelaRelatorioCheckin.dart';
-import 'package:Sloc/controladores/VisitaControlador.dart';
+import 'package:Sloc/controladores/RotaControlador.dart';
 import 'package:Sloc/dados/dbProfissional.dart';
 import 'package:Sloc/entidades/profissional.dart';
 import 'package:flutter/cupertino.dart';
@@ -67,6 +67,9 @@ class _IndexVendedorState extends State<IndexVendedor> {
   Map<PolylineId, Polyline> polylines = {}; //contem as polilinhas geradas
   poly.PolylinePoints polylinePoints =
       poly.PolylinePoints(); // que gera cada polilinha entre o início e o fim
+
+  //Atributos controlador
+  RotaControlador rotaControlador = RotaControlador();
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
@@ -243,8 +246,8 @@ class _IndexVendedorState extends State<IndexVendedor> {
 
     for (int i = 0; i < profissionais.length; i++) {
       //instanciando lat long
-      double latitude = double.parse(profissionais[i][1].lat);
-      double longitude = double.parse(profissionais[i][1].long);
+      double latitude = double.parse(profissionais[i][1].latitude);
+      double longitude = double.parse(profissionais[i][1].longitude);
       int idProfissional = profissionais[i][1].id;
 
       //instanciando marcador
@@ -553,18 +556,18 @@ class _IndexVendedorState extends State<IndexVendedor> {
         latA = latUsuario;
         longA = longUsuario;
         List menorDistancia = _pegarMenorDistancia(distancias);
-        latB = double.parse(menorDistancia[1].lat);
-        longB = double.parse(menorDistancia[1].long);
-        anterior[0] = double.parse(menorDistancia[1].lat);
-        anterior[1] = double.parse(menorDistancia[1].long);
+        latB = double.parse(menorDistancia[1].latitude);
+        longB = double.parse(menorDistancia[1].longitude);
+        anterior[0] = double.parse(menorDistancia[1].latitude);
+        anterior[1] = double.parse(menorDistancia[1].longitude);
       } else {
         latA = anterior[0];
         longA = anterior[1];
         List menorDistancia = _pegarMenorDistancia(distancias);
-        latB = double.parse(menorDistancia[1].lat);
-        longB = double.parse(menorDistancia[1].long);
-        anterior[0] = double.parse(menorDistancia[1].lat);
-        anterior[1] = double.parse(menorDistancia[1].long);
+        latB = double.parse(menorDistancia[1].latitude);
+        longB = double.parse(menorDistancia[1].longitude);
+        anterior[0] = double.parse(menorDistancia[1].latitude);
+        anterior[1] = double.parse(menorDistancia[1].longitude);
       }
 
       //faz a busca no google pela rota
@@ -612,7 +615,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
           longitude,
         );
 
-        String idPlace = _lugares[i].id;
+        String idPlace = _lugares[i].placeId;
         String nome = _lugares[i].name;
         String endereco =
             _lugares[i].formattedAddress.split(", Brazil")[0] + ".";
@@ -624,11 +627,11 @@ class _IndexVendedorState extends State<IndexVendedor> {
         Profissional profissional = Profissional(idPlace, nome, endereco,
             contato, avaliacao, latitudeString, longitudeString);
         DbProfissional dbProfissional = new DbProfissional();
-        int identificador =
-            await dbProfissional.cadastrarProfissional(profissional);
-        profissional.id = identificador;
-
-        distancias.add([distancia, profissional]);
+        // int identificador =
+        //     await dbProfissional.cadastrarProfissional(profissional);
+        // profissional.id = identificador;
+        //
+        // distancias.add([distancia, profissional]);
       }
     }
     return distancias;
@@ -656,7 +659,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
 
     for (int i = 0; i < _controleDeSelecaoBusca.length; i++) {
       if (_controleDeSelecaoBusca[i] == true) {
-        String idPlace = _lugares[i].id;
+        String idPlace = _lugares[i].placeId;
         String nome = _lugares[i].name;
         String endereco =
             _lugares[i].formattedAddress.split(", Brazil")[0] + ".";
@@ -711,8 +714,8 @@ class _IndexVendedorState extends State<IndexVendedor> {
     for (int i = 0; i < profissionais.length; i++) {
       var ponto = [
         profissionais[i].nome,
-        new LatLng(double.parse(profissionais[i].lat),
-            double.parse(profissionais[i].long))
+        new LatLng(double.parse(profissionais[i].latitude),
+            double.parse(profissionais[i].longitude))
       ];
       resposta.add(ponto);
     }
@@ -1015,7 +1018,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
                   RawMaterialButton(
                     onPressed: () async {
                       await _acionarVisita();
-                      iniciarVisitas(_profissionais, latUsuario, longUsuario);
+                      rotaControlador.salvarRotaVendedor(vendedor,_profissionais);
                     },
                     elevation: 2.0,
                     fillColor: Colors.green,

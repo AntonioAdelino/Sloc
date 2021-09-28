@@ -190,14 +190,14 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     });
   }
 
-  _alterarGerente(int id, String cpf, int idGerente) async {
+  _alterarGerente(int id, String cpf, int gerente) async {
     String nome = _nomeController.text;
     String email = _emailController.text;
     String senha = _senhaController.text;
 
     Vendedor vendedor = Vendedor(nome, cpf, email, senha);
     vendedor.id = id;
-    vendedor.idGerente = idGerente;
+    vendedor.gerente = gerente;
     int resultado = await _vendedorControlador.alterar(vendedor);
   }
 
@@ -303,7 +303,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
                         child: Text("Salvar"),
                         onPressed: () {
                           _enviarFormulario(vendedor.id, vendedor.cpf,
-                              _buscaController.text, vendedor.idGetente);
+                              _buscaController.text, vendedor.gerente);
                         },
                       ),
                     ],

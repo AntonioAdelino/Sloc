@@ -6,11 +6,11 @@ class Profissional {
   String _endereco;
   String _contato;
   String _avaliacao;
-  String _lat;
-  String _long;
+  String _latitude;
+  String _longitude;
 
   //construtores
-  Profissional(this._idPlace, this._nome, this._endereco, this._contato, this._avaliacao, this._lat, this._long);
+  Profissional(this._idPlace, this._nome, this._endereco, this._contato, this._avaliacao, this._latitude, this._longitude);
 
   Profissional.fromMap(Map map){
     this._id = map["id"];
@@ -19,8 +19,8 @@ class Profissional {
     this._endereco = map["endereco"];
     this._contato = map["contato"];
     this._avaliacao = map["avaliacao"];
-    this._lat = map["lat"];
-    this._long = map["long"];
+    this._latitude = map["latitude"];
+    this._longitude = map["longitude"];
   }
 
   //método para mapear os atributos
@@ -32,8 +32,8 @@ class Profissional {
       "endereco"  : this._endereco,
       "contato"   : this._contato,
       "avaliacao" : this._avaliacao,
-      "lat"       : this._lat,
-      "long"      : this._long,
+      "latitude"       : this._latitude,
+      "longitude"      : this._longitude,
 
     };
     if(this.id != null){
@@ -49,8 +49,8 @@ class Profissional {
   String get endereco{return this._endereco;}
   String get contato{return this._contato;}
   String get avaliacao{return this._avaliacao;}
-  String get lat{return this._lat;}
-  String get long{return this._long;}
+  String get latitude{return this._latitude;}
+  String get longitude{return this._longitude;}
 
   //setters
   set id(int id){this._id = id;}
@@ -59,7 +59,7 @@ class Profissional {
   set endereco(String endereco){this._endereco = endereco;}
   set contato(String contato){this._contato = contato;}
   set avaliacao(String avaliacao){this._avaliacao = avaliacao;}
-  set lat(String lat){this._lat = lat;}
-  set long(String long){this._long = long;}
+  set latitude(String lat){this._latitude = lat;}
+  set longitude(String long){this._longitude = long;}
 
 }

@@ -5,7 +5,7 @@ class Vendedor {
   String _cpf;
   String _email;
   String _senha;
-  int _idGerente;
+  int _gerente;
 
   //construtores
   Vendedor(this._nome, this._cpf, this._email, this._senha);
@@ -16,7 +16,7 @@ class Vendedor {
     this._cpf = map["cpf"];
     this._email = map["email"];
     this._senha = map["senha"];
-    this._idGerente = map["idGerente"];
+    this._gerente = map["gerente"];
   }
 
   //método para mapear os atributos
@@ -28,7 +28,7 @@ class Vendedor {
       "cpf"       : this._cpf,
       "email"     : this._email,
       "senha"     : this._senha,
-      "gerente"   : this._idGerente,
+      "gerente"   : this._gerente,
 
     };
 
@@ -44,7 +44,7 @@ class Vendedor {
   String get cpf{return this._cpf;}
   String get email{return this._email;}
   String get senha{return this._senha;}
-  int get idGetente{return this._idGerente;}
+  int get gerente{return this._gerente;}
 
   //setters
   set id(int id){this._id = id;}
@@ -52,6 +52,6 @@ class Vendedor {
   set cpf(String cpf){this._cpf = cpf;}
   set email(String email){this._email = email;}
   set senha(String senha){this._senha = senha;}
-  set idGerente(int idGerente){this._idGerente = idGerente;}
+  set gerente(int gerente){this._gerente = gerente;}
 
 }
