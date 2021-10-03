@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:Sloc/TelaRelatorioCheckin.dart';
 import 'package:Sloc/controladores/RotaControlador.dart';
 import 'package:Sloc/dados/dbProfissional.dart';
 import 'package:Sloc/entidades/profissional.dart';
@@ -15,7 +14,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
 
-import 'TelaBuscarVendedor.dart';
 import 'dados/dbGerente.dart';
 import 'entidades/gerente.dart';
 
@@ -36,8 +34,9 @@ class _IndexGerenteState extends State<IndexGerente> {
   Completer<GoogleMapController> _controllerMap = Completer();
   Set<Marker> _marcadores = {};
   Set<Polyline> _polylines = {};
+  Position p = new Position();
   CameraPosition _posicaoCamera =
-      CameraPosition(target: LatLng(-15.7991564, -47.8606298), zoom: 0);
+      CameraPosition(target: LatLng(p.latitude, p.longitude), zoom: 0);//LatLng(-15.7991564, -47.8606298), zoom: 0);
   double latUsuario, longUsuario, latSeguinte, longSeguinte;
   Set<Circle> _circles = HashSet<Circle>();
 
@@ -92,10 +91,10 @@ class _IndexGerenteState extends State<IndexGerente> {
     geolocator.getPositionStream(locationOptions).listen((Position position) {
       //atualiza a posição do marcador
       setState(() {
-        _posicaoCamera = CameraPosition(
-            target: LatLng(position.latitude, position.longitude), zoom: 1);
         latUsuario = position.latitude;
         longUsuario = position.longitude;
+        _posicaoCamera = CameraPosition(
+            target: LatLng(latUsuario, longUsuario), zoom: 1);
         _movimentarCamera();
       });
     });
@@ -779,8 +778,21 @@ class _IndexGerenteState extends State<IndexGerente> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Sloc"),
         backgroundColor: Color(0xff1e2e3e),
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Sloc",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              "Gerente",
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            ),
+          ],
+        ),
       ),
       drawer: Drawer(
         child: ListView(
@@ -815,10 +827,17 @@ class _IndexGerenteState extends State<IndexGerente> {
                 style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
               ),
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => TelaBuscarVendedor()));
+                _navegarParaTela(gerente, "/CadastroVendedor");
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.assessment, color: Color(0xff1e2e3e)),
+              title: Text(
+                'Ver relatório de vendedor',
+                style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
+              ),
+              onTap: () {
+                _navegarParaTela(gerente, "/TelaDeRelatorioDeVendedores");
               },
             ),
             ListTile(

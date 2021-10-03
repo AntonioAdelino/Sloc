@@ -17,14 +17,40 @@ class VendedorControlador {
     return transformarJsonEmVendedores(resultado);
   }
 
+  Future<List> listarPorGerente(int gerente) async {
+    var g = json.encode(gerente);
+    //faz consulta web
+    var client = http.Client();
+    var resposta = await client.send(http.Request(
+        "POST", Uri.parse(url+"/por-gerente"))
+      ..headers["Content-Type"] = "application/json"
+      ..body = g);
+
+    //captura o json da resposta http
+    List resultado = json.decode(await resposta.stream.bytesToString());
+    return transformarJsonEmVendedores(resultado);
+  }
+
   List transformarJsonEmVendedores(List json) {
     List vendedores = [];
     //varre a lista json convertendo os objetos para Gerente
     for (int i = 0; i < json.length; i++) {
-      Vendedor v = new Vendedor.fromMap(json[i]);
+      var v = criarVendedor(json[i]);
       vendedores.add(v);
     }
     return vendedores;
+  }
+
+  Vendedor criarVendedor(Map vendedorMap){
+    var gerenteMap =
+    json.decode(json.encode(vendedorMap)) as Map<String, dynamic>;
+    //pega o id do gerente para dicionar ao objeto de vendedor
+    var gerente = gerenteMap["gerente"]["id"];
+    vendedorMap["gerente"] = gerente;
+    Vendedor vendedor = new Vendedor.fromMap(vendedorMap);
+
+    vendedor.gerente = gerente;
+    return vendedor;
   }
 
   Future<List> buscarVendedor(String nome) async {

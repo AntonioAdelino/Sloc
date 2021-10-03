@@ -15,28 +15,6 @@ class _LoginState extends State<Login> {
   TextEditingController _emailController = TextEditingController();
   TextEditingController _senhaController = TextEditingController();
 
-  String _validarEmail(String value) {
-    String pattern =
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@' +
-            '((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))';
-    RegExp regExp = new RegExp(pattern);
-    if (value.length == 0) {
-      return "Informe o Email";
-    } else if (!regExp.hasMatch(value)) {
-      return "Email inválido";
-    } else {
-      return null;
-    }
-  }
-
-  String _validarSenha(String value) {
-    if (value.length == 0) {
-      return "Informe a senha";
-    } else {
-      return null;
-    }
-  }
-
   void _navegarParaIndex(Object objeto, String rota) {
     Navigator.pushReplacementNamed(context, rota,
         arguments: {"objeto": objeto});

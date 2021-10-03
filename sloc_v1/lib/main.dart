@@ -6,6 +6,7 @@ import 'IndexGerente.dart';
 import 'IndexVendedor.dart';
 import 'TelaCadastroGerente.dart';
 import 'TelaCadastroVendedor.dart';
+import 'TelaRelatorioDeVendedores.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -21,5 +22,6 @@ void main() {
         "/IndexVendedor": (context) => IndexVendedor(),
         "/CadastroGerente": (context) => TelaCadastroGerente(),
         "/CadastroVendedor": (context) => TelaCadastroVendedor(),
+        "/TelaDeRelatorioDeVendedores": (context) => TelaDeRelatorioDeVendedores(),
       }));
 }

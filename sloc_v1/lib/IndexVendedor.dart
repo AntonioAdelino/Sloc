@@ -772,8 +772,21 @@ class _IndexVendedorState extends State<IndexVendedor> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text("Sloc"),
         backgroundColor: Color(0xff1e2e3e),
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Sloc",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            Text(
+              "Vendedor",
+              style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            ),
+          ],
+        ),
       ),
       drawer: Drawer(
         child: ListView(
