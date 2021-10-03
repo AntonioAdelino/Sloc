@@ -3,30 +3,23 @@ import 'package:Sloc/entidades/profissional.dart';
 class Visita {
   //atributos
   int _id;
-  int _idVendedor;
-  int _idProfissional;
-  String _data;
   int _distanciaCheckin;
+  int _rota;
 
   //construtores
-  Visita(this._idVendedor, this._idProfissional, this._data,
-      this._distanciaCheckin);
+  Visita(this._distanciaCheckin, this._rota);
 
   Visita.fromMap(Map map) {
     this._id = map["id"];
-    this._idVendedor = map["idVendedor"];
-    this._idProfissional = map["idProfissional"];
-    this._data = map["data"];
     this._distanciaCheckin = map["distanciaCheckin"];
+    this._rota = map["rota"];
   }
 
   //método para mapear os atributos
   Map toMap() {
     Map<String, dynamic> map = {
-      "idVendedor": this._idVendedor,
-      "idProfissional": this._idProfissional,
-      "data": this._data,
       "distanciaCheckin": this._distanciaCheckin,
+      "rota": this._rota,
     };
 
     if (this._id != null) {
@@ -35,45 +28,21 @@ class Visita {
     return map;
   }
 
-  //getters
-  int get id {
-    return this._id;
+  int get rota => _rota;
+
+  set rota(int value) {
+    _rota = value;
   }
 
-  int get idVendedor {
-    return this._idVendedor;
+  int get distanciaCheckin => _distanciaCheckin;
+
+  set distanciaCheckin(int value) {
+    _distanciaCheckin = value;
   }
 
-  int get idProfissional {
-    return this._idProfissional;
-  }
+  int get id => _id;
 
-  String get data {
-    return this._data;
-  }
-
-  int get distanciaCheckin {
-    return this._distanciaCheckin;
-  }
-
-  //setters
-  set id(int id) {
-    this._id = id;
-  }
-
-  set idVendedor(int nome) {
-    this._idVendedor = idVendedor;
-  }
-
-  set idProfissional(int cpf) {
-    this._idProfissional = idProfissional;
-  }
-
-  set data(String data) {
-    this._data = data;
-  }
-
-  set distanciaCheckin(int distanciaCheckin) {
-    this._distanciaCheckin = distanciaCheckin;
+  set id(int value) {
+    _id = value;
   }
 }

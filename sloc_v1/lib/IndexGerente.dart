@@ -34,9 +34,8 @@ class _IndexGerenteState extends State<IndexGerente> {
   Completer<GoogleMapController> _controllerMap = Completer();
   Set<Marker> _marcadores = {};
   Set<Polyline> _polylines = {};
-  Position p = new Position();
   CameraPosition _posicaoCamera =
-      CameraPosition(target: LatLng(p.latitude, p.longitude), zoom: 0);//LatLng(-15.7991564, -47.8606298), zoom: 0);
+      CameraPosition(target: LatLng(-15.7991564, -47.8606298), zoom: 0);
   double latUsuario, longUsuario, latSeguinte, longSeguinte;
   Set<Circle> _circles = HashSet<Circle>();
 
