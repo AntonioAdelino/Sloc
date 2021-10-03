@@ -56,6 +56,9 @@ class DbVendedor {
     String sql = "DROP TABLE $nomeTabela";
     await bancoDados.execute(sql);
 
+    sql = "DROP TABLE gerentes";
+    await bancoDados.execute(sql);
+
     sql = "CREATE TABLE gerentes (id INTEGER PRIMARY KEY AUTOINCREMENT," +
         " nome VARCHAR, cpf VARCHAR, email VARCHAR, senha VARCHAR);";
     await bancoDados.rawQuery(sql);

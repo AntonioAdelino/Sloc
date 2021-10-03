@@ -54,6 +54,9 @@ class DbGerente {
     String sql = "DROP TABLE $nomeTabela";
     await bancoDados.execute(sql);
 
+    sql = "DROP TABLE vendedores";
+    await bancoDados.execute(sql);
+
     sql =
         "CREATE TABLE vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, nome VARCHAR," +
             " cpf VARCHAR, email VARCHAR, senha VARCHAR, gerente INTEGER);";
