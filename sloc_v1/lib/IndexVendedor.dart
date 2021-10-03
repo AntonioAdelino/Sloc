@@ -46,6 +46,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
   List<bool> _controleDeSelecao = [];
   List<bool> _controleDeSelecaoBusca = [];
   List<String> _listaDeContatos = [];
+  bool _emRota = false;
 
   //Atributos TextField
   TextEditingController _profissionalController = TextEditingController();
@@ -100,11 +101,11 @@ class _IndexVendedorState extends State<IndexVendedor> {
   }
 
   _pesquisarProfissional() async {
+    _emRota = false;
     //limpar marcadores
     _marcadores.clear();
     //pesquisa o profissional por area
-    GoogleMapsPlaces places =
-        new GoogleMapsPlaces(apiKey: KEY_GOOGLE_API);
+    GoogleMapsPlaces places = new GoogleMapsPlaces(apiKey: KEY_GOOGLE_API);
 
     if (!_visibilidade) {
       _pesquisarSemEndereco(places);
@@ -141,7 +142,8 @@ class _IndexVendedorState extends State<IndexVendedor> {
     var response = await http.get(
         "https://maps.googleapis.com/maps/api/place/details/json?place_id=" +
             item.placeId +
-            "&fields=formatted_phone_number&key="+KEY_GOOGLE_API);
+            "&fields=formatted_phone_number&key=" +
+            KEY_GOOGLE_API);
     //trata Json e retorna apenas o numero
     String numero = transformarJsonEmNum(json.decode(response.body));
     return numero;
@@ -235,8 +237,8 @@ class _IndexVendedorState extends State<IndexVendedor> {
       markerId: MarkerId("inicio"),
       position: LatLng(latUsuario, longUsuario),
       //icon: await BitmapDescriptor.fromAssetImage(configuration, "imagens/pino.png"),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor
-          .hueGreen), //.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      //.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
       infoWindow: InfoWindow(title: "Local de Início"),
     );
     //adicionando no mapa
@@ -269,7 +271,8 @@ class _IndexVendedorState extends State<IndexVendedor> {
   }
 
   Future<void> _irParaLocal(double lat, double long,
-      {double zoom /*Parâmetro opcional*/}) async {
+      {double zoom /*Parâmetro opcional*/
+      }) async {
     if (zoom == null) {
       _posicaoCamera = CameraPosition(target: LatLng(lat, long), zoom: 5);
       _movimentarCamera();
@@ -340,6 +343,13 @@ class _IndexVendedorState extends State<IndexVendedor> {
     });
   }
 
+  _ehVerde(bool marcado) {
+    if (_emRota == true)
+      return true;
+    else
+      return marcado;
+  }
+
   List<Widget> _criarLista() {
     //iniciando lista de seleção
     _inicializarListaDeSelecao(_lugares.length);
@@ -358,13 +368,13 @@ class _IndexVendedorState extends State<IndexVendedor> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
-                    color: _controleDeSelecaoBusca[i]
+                    color: _ehVerde(_controleDeSelecaoBusca[i])
                         ? Colors.green
                         : Color(0xff25394e),
                     width: 100,
                     height: 215,
                     child: FlatButton(
-                      child: _controleDeSelecaoBusca[i]
+                      child: _ehVerde(_controleDeSelecaoBusca[i])
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
@@ -388,15 +398,19 @@ class _IndexVendedorState extends State<IndexVendedor> {
                               ],
                             ),
                       onPressed: () {
-                        _marcarOuDesmarcarCardBusca(i);
+                        if (!_emRota) {
+                          _marcarOuDesmarcarCardBusca(i);
+                        }
                       },
                     ),
                   ),
                   GestureDetector(
                     onTap: () {
-                      _marcarOuDesmarcarCard(i);
-                      _irParaLocal(item.geometry.location.lat,
-                          item.geometry.location.lng);
+                      if (!_emRota) {
+                        _marcarOuDesmarcarCard(i);
+                        _irParaLocal(item.geometry.location.lat,
+                            item.geometry.location.lng);
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -631,7 +645,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
         //     await dbProfissional.cadastrarProfissional(profissional);
         // profissional.id = identificador;
         //
-        // distancias.add([distancia, profissional]);
+        distancias.add([distancia, profissional]);
       }
     }
     return distancias;
@@ -729,9 +743,8 @@ class _IndexVendedorState extends State<IndexVendedor> {
         circleId: CircleId(pontos[i][0]),
         center: pontos[i][1],
         radius: 100,
-        strokeColor: Color(0xff1e2e3e),
-        strokeWidth: 2,
-        fillColor: Color(0xff1e2e3e).withOpacity(0.5),
+        strokeWidth: 0,
+        fillColor: Color(0xff1e2e3e).withOpacity(0.3),
       ));
     }
   }
@@ -765,7 +778,6 @@ class _IndexVendedorState extends State<IndexVendedor> {
 
   @override
   Widget build(BuildContext context) {
-
     Map objeto = ModalRoute.of(context).settings.arguments;
     Vendedor vendedor = objeto["objeto"];
 
@@ -874,6 +886,9 @@ class _IndexVendedorState extends State<IndexVendedor> {
                   },
                   onSubmitted: (String str) {
                     if (_visibilidade == false) {
+                      polylineCoordinates.clear();
+                      _polylines.clear();
+                      _circles.clear();
                       _pesquisarProfissional();
                       _habilitarVisibilidadeRota();
                     }
@@ -960,6 +975,9 @@ class _IndexVendedorState extends State<IndexVendedor> {
                       if (_visibilidade == true) {
                         _controleDeSelecao.clear();
                         _controleDeSelecaoBusca.clear();
+                        polylineCoordinates.clear();
+                        _polylines.clear();
+                        _circles.clear();
                         _pesquisarProfissional();
                         _habilitarVisibilidadeRota();
                       }
@@ -1031,7 +1049,9 @@ class _IndexVendedorState extends State<IndexVendedor> {
                   RawMaterialButton(
                     onPressed: () async {
                       await _acionarVisita();
-                      rotaControlador.salvarRotaVendedor(vendedor,_profissionais);
+                      rotaControlador.salvarRotaVendedor(
+                          vendedor, _profissionais);
+                      _emRota = true;
                     },
                     elevation: 2.0,
                     fillColor: Colors.green,
