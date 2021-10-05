@@ -15,6 +15,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:http/http.dart' as http;
 
+import 'controladores/ProfissionalControlador.dart';
 import 'dados/dbVendedor.dart';
 import 'entidades/vendedor.dart';
 
@@ -42,7 +43,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
 
   //Atributos seleção
   List<PlacesSearchResult> _lugares = [];
-  List<dynamic> _profissionais = [];
+  List<Profissional> _profissionais = [];
   List<bool> _controleDeSelecao = [];
   List<bool> _controleDeSelecaoBusca = [];
   List<String> _listaDeContatos = [];
@@ -71,6 +72,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
 
   //Atributos controlador
   RotaControlador rotaControlador = RotaControlador();
+  ProfissionalControlador profissionalControlador = ProfissionalControlador();
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
@@ -145,7 +147,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
             "&fields=formatted_phone_number&key=" +
             KEY_GOOGLE_API);
     //trata Json e retorna apenas o numero
-    String numero = transformarJsonEmNum(json.decode(response.body));
+    String numero = _transformarJsonEmNum(json.decode(response.body));
     return numero;
   }
 
@@ -163,7 +165,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
     return "Não consta!";
   }
 
-  transformarJsonEmNum(Map<String, dynamic> json) {
+  _transformarJsonEmNum(Map<String, dynamic> json) {
     String numero;
     //transforma o map em list
     var list = json.values.toList();
@@ -232,13 +234,10 @@ class _IndexVendedorState extends State<IndexVendedor> {
 
   _adicionarMarcadoresDePesquisa(List profissionais) {
     _marcadores.clear();
-    //ImageConfiguration configuration = ImageConfiguration(size: Size(1, 1));
     Marker marcador = Marker(
       markerId: MarkerId("inicio"),
       position: LatLng(latUsuario, longUsuario),
-      //icon: await BitmapDescriptor.fromAssetImage(configuration, "imagens/pino.png"),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      //.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
       infoWindow: InfoWindow(title: "Local de Início"),
     );
     //adicionando no mapa
@@ -640,11 +639,6 @@ class _IndexVendedorState extends State<IndexVendedor> {
 
         Profissional profissional = Profissional(idPlace, nome, endereco,
             contato, avaliacao, latitudeString, longitudeString);
-        DbProfissional dbProfissional = new DbProfissional();
-        // int identificador =
-        //     await dbProfissional.cadastrarProfissional(profissional);
-        // profissional.id = identificador;
-        //
         distancias.add([distancia, profissional]);
       }
     }
@@ -691,9 +685,22 @@ class _IndexVendedorState extends State<IndexVendedor> {
     return prof;
   }
 
-  _acionarVisita() async {
+  _transformarListDynamicemListProfissional(
+      List<dynamic> dynamicProfissionais) {
+    List<Profissional> profissionais = [];
+    for (int i = 0; i < dynamicProfissionais.length; i++) {
+      var mapProfissional = dynamicProfissionais[i].toMap();
+      Profissional profissional = Profissional.fromMap(mapProfissional);
+      profissionais.add(profissional);
+    }
+    return profissionais;
+  }
+
+  _iniciarRota() async {
     //gravar os profissionais visitados
-    List profissionais = await _instanciarProfissionais();
+
+    var profissionaisDynamic = await _instanciarProfissionais();
+    List<Profissional> profissionais = _transformarListDynamicemListProfissional(profissionaisDynamic);
     //limpar componentes da tela (lista e botões)
     setState(() {
       _visibilidadeIr = false;
@@ -705,7 +712,6 @@ class _IndexVendedorState extends State<IndexVendedor> {
     //acionar o modo "localizar pontos de visita"
     var pontos = _criarCercas(profissionais);
     _criarCirculosNoMapa(pontos);
-    //_ativandoLocalizacaoDeBusca(profissionais);
   }
 
   _limparListaLugares(List profissionais) {
@@ -873,7 +879,6 @@ class _IndexVendedorState extends State<IndexVendedor> {
                   textCapitalization: TextCapitalization.words,
                   controller: _profissionalController,
                   decoration: InputDecoration(
-                    //border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.assignment_ind),
                     hintText: "Digite o profissional",
                     border: InputBorder.none,
@@ -914,7 +919,6 @@ class _IndexVendedorState extends State<IndexVendedor> {
                     textCapitalization: TextCapitalization.words,
                     controller: _bairroController,
                     decoration: InputDecoration(
-                      //border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.location_on),
                       hintText: "Digite o bairro",
                       border: InputBorder.none,
@@ -941,7 +945,6 @@ class _IndexVendedorState extends State<IndexVendedor> {
                     textCapitalization: TextCapitalization.words,
                     controller: _cidadeController,
                     decoration: InputDecoration(
-                      //border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.location_city),
                       hintText: "Digite a cidade",
                       border: InputBorder.none,
@@ -1021,7 +1024,6 @@ class _IndexVendedorState extends State<IndexVendedor> {
             visible: _visibilidade,
             child: Positioned(
               top: 130,
-              //left: 310,
               left: 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -1048,10 +1050,12 @@ class _IndexVendedorState extends State<IndexVendedor> {
                 children: <Widget>[
                   RawMaterialButton(
                     onPressed: () async {
-                      await _acionarVisita();
+                      _emRota = true;
+                      await _iniciarRota();
+                      _profissionais = await profissionalControlador
+                          .adicionarListaDeProfissionais(_profissionais);
                       rotaControlador.salvarRotaVendedor(
                           vendedor, _profissionais);
-                      _emRota = true;
                     },
                     elevation: 2.0,
                     fillColor: Colors.green,

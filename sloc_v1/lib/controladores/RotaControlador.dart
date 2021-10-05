@@ -55,8 +55,7 @@ class RotaControlador {
   Future<List> gerarMaps(profissionais) async {
     List map = [];
     for (int i = 0; i < profissionais.length; i++) {
-      var idProfissional = await salvarProfissional(profissionais[i]);
-      var id = '{ "id" : ' + idProfissional + ' }';
+      var id = '{ "id" : ' + profissionais[i].id.toString() + ' }';
       map.add(id);
     }
     return map;

@@ -48,4 +48,12 @@ class ProfissionalControlador {
 
     return resposta.body;
   }
+
+  adicionarListaDeProfissionais(List<Profissional> profissionais) async {
+    for (int i = 0; i < profissionais.length; i++) {
+      var id = await adicionar(profissionais[i]);
+      profissionais[i].id = int.parse(id);
+    }
+    return profissionais;
+  }
 }
