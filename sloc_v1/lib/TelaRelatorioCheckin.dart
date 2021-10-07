@@ -1,10 +1,8 @@
-import 'package:Sloc/entidades/visita.dart';
+import 'package:Sloc/controladores/VisitaControlador.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Sloc/dados/dbVisita.dart';
-import 'package:intl/intl.dart';
 
-telaCheckin(context, distancia, idProfissional) async {
+telaCheckin(context, distancia, idRota, int idProfissional) async {
   if (distancia > 100) {
     return showDialog(
         context: context,
@@ -28,6 +26,7 @@ telaCheckin(context, distancia, idProfissional) async {
                 color: Colors.grey,
                 textColor: Colors.white,
                 onPressed: () {
+                  _salvarVisita(distancia, idRota, idProfissional);
                   Navigator.pop(context);
                 },
                 child: Text("Continuar"),
@@ -72,15 +71,7 @@ telaCheckin(context, distancia, idProfissional) async {
                 color: Colors.green,
                 textColor: Colors.white,
                 onPressed: () {
-                  //aqui eu faço a visita
-
-                  //instanciando variáveis
-                  DateTime dataAgora = new DateTime.now();
-                  String data =
-                      DateFormat('dd/MM/yyyy kk:mm').format(dataAgora);
-
-                  //Visita visita = new Visita(1, idProfissional, data, distancia);
-                  //DbVisita  db = new DbVisita();
+                  _salvarVisita(distancia, idRota, idProfissional);
                   Navigator.pop(context);
                 },
                 child: Text("Continuar"),
@@ -89,4 +80,9 @@ telaCheckin(context, distancia, idProfissional) async {
           );
         });
   }
+}
+
+_salvarVisita(distancia, idRota, idProfissional) async {
+  VisitaControlador visitaControlador = VisitaControlador();
+  await visitaControlador.salvarVisita(distancia, idRota, idProfissional);
 }

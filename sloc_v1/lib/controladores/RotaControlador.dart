@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:Sloc/controladores/ProfissionalControlador.dart';
 import 'package:Sloc/entidades/gerente.dart';
 import 'package:Sloc/entidades/profissional.dart';
+import 'package:Sloc/entidades/rota.dart';
 import 'package:Sloc/entidades/vendedor.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -24,7 +25,7 @@ class RotaControlador {
     await fazerRequisicaoHttp(requisicao);
   }
 
-  void salvarRotaVendedor(Vendedor vendedor, List profissionais) async {
+  salvarRotaVendedor(Vendedor vendedor, List profissionais) async {
     String data = gerarDataAtual();
     List profissionaisMapeados = await gerarMaps(profissionais);
     var requisicao = '{ "data" : "' +
@@ -36,14 +37,14 @@ class RotaControlador {
         '}, "profissionais" : ' +
         profissionaisMapeados.toString() +
         ' }';
-    await fazerRequisicaoHttp(requisicao);
+    return await fazerRequisicaoHttp(requisicao);
   }
 
   Future<void> fazerRequisicaoHttp(String requisicao) async {
-    var client = http.Client();
-    await client.send(http.Request("POST", Uri.parse(url))
-      ..headers["Content-Type"] = "application/json"
-      ..body = requisicao);
+    var resposta = await http.post(url,
+        headers: {"Content-Type": "application/json"}, body: requisicao);
+    var body = json.decode(resposta.body);
+    return body["id"];
   }
 
   gerarDataAtual() {

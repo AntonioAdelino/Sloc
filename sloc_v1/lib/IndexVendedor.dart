@@ -74,6 +74,8 @@ class _IndexVendedorState extends State<IndexVendedor> {
   RotaControlador rotaControlador = RotaControlador();
   ProfissionalControlador profissionalControlador = ProfissionalControlador();
 
+  int _rotaId = -1;
+
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
@@ -103,6 +105,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
   }
 
   _pesquisarProfissional() async {
+    _rotaId = -1;
     _emRota = false;
     //limpar marcadores
     _marcadores.clear();
@@ -249,7 +252,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
       //instanciando lat long
       double latitude = double.parse(profissionais[i][1].latitude);
       double longitude = double.parse(profissionais[i][1].longitude);
-      int idProfissional = profissionais[i][1].id;
+      String idPlace = profissionais[i][1].idPlace;
 
       //instanciando marcador
       Marker marcador = Marker(
@@ -258,14 +261,25 @@ class _IndexVendedorState extends State<IndexVendedor> {
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         infoWindow: InfoWindow(title: profissionais[i][1].nome),
         onTap: () async {
-          int distancia = await _medirDistanciaDoPonto(latitude, longitude);
-          telaCheckin(context, distancia, idProfissional);
+          if (_emRota){
+            int distancia = await _medirDistanciaDoPonto(latitude, longitude);
+            var idProfissional = _pegarIdProfissional(idPlace);
+            telaCheckin(context, distancia, _rotaId, idProfissional);
+          }
         },
       );
       //adicionando no mapa
       setState(() {
         _marcadores.add(marcador);
       });
+    }
+  }
+
+  _pegarIdProfissional(String idPlace){
+    for (int i = 0; i < _profissionais.length; i++) {
+      if(_profissionais[i].idPlace == idPlace){
+        return _profissionais[i].id;
+      }
     }
   }
 
@@ -1054,7 +1068,7 @@ class _IndexVendedorState extends State<IndexVendedor> {
                       await _iniciarRota();
                       _profissionais = await profissionalControlador
                           .adicionarListaDeProfissionais(_profissionais);
-                      rotaControlador.salvarRotaVendedor(
+                      _rotaId = await rotaControlador.salvarRotaVendedor(
                           vendedor, _profissionais);
                     },
                     elevation: 2.0,
