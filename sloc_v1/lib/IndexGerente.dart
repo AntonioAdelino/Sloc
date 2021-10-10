@@ -41,7 +41,6 @@ class _IndexGerenteState extends State<IndexGerente> {
 
   //Atributos seleção
   List<PlacesSearchResult> _lugares = [];
-  List<dynamic> _profissionais = [];
   List<bool> _controleDeSelecao = [];
   List<bool> _controleDeSelecaoBusca = [];
   List<String> _listaDeContatos = [];
@@ -70,7 +69,6 @@ class _IndexGerenteState extends State<IndexGerente> {
   //Atributos controlador
   RotaControlador visitaControlador = RotaControlador();
 
-
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
@@ -92,8 +90,8 @@ class _IndexGerenteState extends State<IndexGerente> {
       setState(() {
         latUsuario = position.latitude;
         longUsuario = position.longitude;
-        _posicaoCamera = CameraPosition(
-            target: LatLng(latUsuario, longUsuario), zoom: 1);
+        _posicaoCamera =
+            CameraPosition(target: LatLng(latUsuario, longUsuario), zoom: 1);
         _movimentarCamera();
       });
     });
@@ -103,8 +101,7 @@ class _IndexGerenteState extends State<IndexGerente> {
     //limpar marcadores
     _marcadores.clear();
     //pesquisa o profissional por area
-    GoogleMapsPlaces places =
-        new GoogleMapsPlaces(apiKey: KEY_GOOGLE_API);
+    GoogleMapsPlaces places = new GoogleMapsPlaces(apiKey: KEY_GOOGLE_API);
 
     if (!_visibilidade) {
       _pesquisarSemEndereco(places);
@@ -141,7 +138,8 @@ class _IndexGerenteState extends State<IndexGerente> {
     var response = await http.get(
         "https://maps.googleapis.com/maps/api/place/details/json?place_id=" +
             item.placeId +
-            "&fields=formatted_phone_number&key="+KEY_GOOGLE_API);
+            "&fields=formatted_phone_number&key=" +
+            KEY_GOOGLE_API);
     //trata Json e retorna apenas o numero
     String numero = transformarJsonEmNum(json.decode(response.body));
     return numero;
@@ -235,8 +233,8 @@ class _IndexGerenteState extends State<IndexGerente> {
       markerId: MarkerId("inicio"),
       position: LatLng(latUsuario, longUsuario),
       //icon: await BitmapDescriptor.fromAssetImage(configuration, "imagens/pino.png"),
-      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor
-          .hueGreen), //.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+      //.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
       infoWindow: InfoWindow(title: "Local de Início"),
     );
     //adicionando no mapa
@@ -269,7 +267,8 @@ class _IndexGerenteState extends State<IndexGerente> {
   }
 
   Future<void> _irParaLocal(double lat, double long,
-      {double zoom /*Parâmetro opcional*/}) async {
+      {double zoom /*Parâmetro opcional*/
+      }) async {
     if (zoom == null) {
       _posicaoCamera = CameraPosition(target: LatLng(lat, long), zoom: 5);
       _movimentarCamera();
@@ -626,11 +625,6 @@ class _IndexGerenteState extends State<IndexGerente> {
 
         Profissional profissional = Profissional(idPlace, nome, endereco,
             contato, avaliacao, latitudeString, longitudeString);
-        //DbProfissional dbProfissional = new DbProfissional();
-        // int identificador =
-        //     await dbProfissional.cadastrarProfissional(profissional);
-        // profissional.id = identificador;
-
         distancias.add([distancia, profissional]);
       }
     }
@@ -654,102 +648,8 @@ class _IndexGerenteState extends State<IndexGerente> {
     return menor;
   }
 
-  _instanciarProfissionais() async {
-    List prof = [];
-
-    for (int i = 0; i < _controleDeSelecaoBusca.length; i++) {
-      if (_controleDeSelecaoBusca[i] == true) {
-        String idPlace = _lugares[i].placeId;
-        String nome = _lugares[i].name;
-        String endereco =
-            _lugares[i].formattedAddress.split(", Brazil")[0] + ".";
-        String contato = _listaDeContatos[i];
-        String avaliacao = _lugares[i].rating.toString() + "/5";
-        String latitude = _lugares[i].geometry.location.lat.toString();
-        String longitude = _lugares[i].geometry.location.lng.toString();
-
-        Profissional p = Profissional(
-            idPlace, nome, endereco, contato, avaliacao, latitude, longitude);
-        prof.add(p);
-      }
-    }
-
-    return prof;
-  }
-
-  _acionarVisita() async {
-    //gravar os profissionais visitados
-    List profissionais = await _instanciarProfissionais();
-    //limpar componentes da tela (lista e botões)
-    setState(() {
-      _visibilidadeIr = false;
-      _visibilidadeRota = false;
-      _lugares = _limparListaLugares(profissionais);
-      _profissionais = profissionais;
-    });
-
-    //acionar o modo "localizar pontos de visita"
-    var pontos = _criarCercas(profissionais);
-    _criarCirculosNoMapa(pontos);
-    //_ativandoLocalizacaoDeBusca(profissionais);
-  }
-
-  _limparListaLugares(List profissionais) {
-    List<PlacesSearchResult> intersecao = [];
-
-    for (int i = 0; i < profissionais.length; i++) {
-      for (int k = 0; k < _lugares.length; k++) {
-        if (profissionais[i].nome == _lugares[k].name) {
-          intersecao.add(_lugares[k]);
-        }
-      }
-    }
-
-    _lugares.clear();
-    return intersecao;
-  }
-
-  _criarCercas(List profissionais) {
-    var resposta = [];
-    for (int i = 0; i < profissionais.length; i++) {
-      var ponto = [
-        profissionais[i].nome,
-        new LatLng(double.parse(profissionais[i].latitude),
-            double.parse(profissionais[i].longitude))
-      ];
-      resposta.add(ponto);
-    }
-    return resposta;
-  }
-
-  _criarCirculosNoMapa(pontos) {
-    //adicionando os circulos no mapa
-    for (int i = 0; i < pontos.length; i++) {
-      _circles.add(Circle(
-        circleId: CircleId(pontos[i][0]),
-        center: pontos[i][1],
-        radius: 100,
-        strokeColor: Color(0xff1e2e3e),
-        strokeWidth: 2,
-        fillColor: Color(0xff1e2e3e).withOpacity(0.5),
-      ));
-    }
-  }
-
-  _medirDistanciaDoPonto(double latitude, double longitude) async {
-    double distancia = await Geolocator().distanceBetween(
-      latUsuario,
-      longUsuario,
-      latitude,
-      longitude,
-    );
-    int distanciaInt = distancia.toInt();
-    return distanciaInt;
-  }
-
   void _navegarParaTela(Object objeto, String rota) {
-    Navigator.pushNamed(context, rota,
-        arguments: {"objeto": objeto});
+    Navigator.pushNamed(context, rota, arguments: {"objeto": objeto});
   }
 
   void _sair() {
@@ -770,7 +670,6 @@ class _IndexGerenteState extends State<IndexGerente> {
 
   @override
   Widget build(BuildContext context) {
-
     Map objeto = ModalRoute.of(context).settings.arguments;
     Gerente gerente = objeto["objeto"];
 
@@ -810,7 +709,8 @@ class _IndexGerenteState extends State<IndexGerente> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.person_add_alt_1_sharp, color: Color(0xff1e2e3e)),
+              leading:
+                  Icon(Icons.person_add_alt_1_sharp, color: Color(0xff1e2e3e)),
               title: Text(
                 'Cadastrar novo vendedor',
                 style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
@@ -820,7 +720,8 @@ class _IndexGerenteState extends State<IndexGerente> {
               },
             ),
             ListTile(
-              leading: Icon(Icons.person_search_sharp, color: Color(0xff1e2e3e)),
+              leading:
+                  Icon(Icons.person_search_sharp, color: Color(0xff1e2e3e)),
               title: Text(
                 'Procurar vendedor',
                 style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
@@ -1051,34 +952,6 @@ class _IndexGerenteState extends State<IndexGerente> {
                       onPressed: () {
                         _habilitarVisibilidade();
                       }),
-                ],
-              ),
-            ),
-          ),
-          Visibility(
-            visible: _visibilidadeIr,
-            child: FractionallySizedBox(
-              widthFactor: 0.99,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  RawMaterialButton(
-                    onPressed: () async {
-                      await _acionarVisita();
-                      visitaControlador.salvarRotaGerente(gerente, _profissionais);
-                    },
-                    elevation: 2.0,
-                    fillColor: Colors.green,
-                    padding: EdgeInsets.all(15.0),
-                    shape: CircleBorder(),
-                    child: Text(
-                      "IR",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    ),
-                  ),
                 ],
               ),
             ),
