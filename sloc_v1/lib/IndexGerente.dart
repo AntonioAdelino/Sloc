@@ -727,7 +727,7 @@ class _IndexGerenteState extends State<IndexGerente> {
                 style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
               ),
               onTap: () {
-                _navegarParaTela(gerente, "/CadastroVendedor");
+                _navegarParaTela(gerente, "/BuscarVendedor");
               },
             ),
             ListTile(

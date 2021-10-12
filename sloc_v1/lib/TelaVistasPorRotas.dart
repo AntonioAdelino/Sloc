@@ -1,16 +1,18 @@
 import 'package:Sloc/controladores/VendedorControlador.dart';
+import 'package:Sloc/controladores/VisitaControlador.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 import 'controladores/RotaControlador.dart';
 import 'entidades/gerente.dart';
 
-class TelaDeRelatorioDeVendedores extends StatefulWidget {
+class TelaVisitasPorRota extends StatefulWidget {
   @override
-  _TelaDeRelatorioDeVendedores createState() => _TelaDeRelatorioDeVendedores();
+  _TelaVisitasPorRota createState() => _TelaVisitasPorRota();
 }
 
-class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
+class _TelaVisitasPorRota extends State<TelaVisitasPorRota> {
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
@@ -25,20 +27,20 @@ class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
 
   //Atributos
   TextEditingController _buscaController = TextEditingController();
-  var _vendedorControlador = VendedorControlador();
+  var _visitaControlador = VisitaControlador();
   var _rotaControlador = RotaControlador();
-  List _vendedorBusca = [];
+  List _visitaBusca = [];
 
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
 
-  _buscarVendedores(Gerente gerente) async {
-      List vendedores =
-      await _vendedorControlador.listarPorGerente(gerente.id);
+  _buscarVisitasPorRota(int rotaId) async {
+      List visitas =
+      await _visitaControlador.listarPorRota(rotaId);
       return setState(() {
-        _vendedorBusca.addAll(vendedores);
+        _visitaBusca.addAll(visitas);
       });
   }
 
@@ -59,6 +61,63 @@ class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
     Navigator.pushNamed(context, rota, arguments: {"objeto": objeto});
   }
 
+  _mostrarDetalhesVisita(List visita) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(visita[0], textAlign: TextAlign.center),
+            content: Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text( "Endereço:",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  Text( visita[2],
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  Text( "Contato:",
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                  Text( visita[3],
+                    textAlign: TextAlign.left,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                    ),
+                  ),
+
+                  Text( "\nCheckin feito a " +
+                      visita[1].toString() + " metros do local.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.0,
+                    ),
+                  ),
+                ],
+              )
+              ),
+            );
+        });
+  }
+
   //Inicializando o State
   @override
   void initState() {
@@ -73,41 +132,39 @@ class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
   Widget build(BuildContext context) {
 
     Map objeto = ModalRoute.of(context).settings.arguments;
-    Gerente gerente = objeto["objeto"];
-    if(_controlador){_buscarVendedores(gerente);};
+    int rota = objeto["objeto"];
+    if(_controlador){_buscarVisitasPorRota(rota);};
     _controlador = false;
 
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("Vendedores"),
+          title: Text("Visitas"),
           backgroundColor: Color(0xff1e2e3e),
         ),
         body: Column(children: <Widget>[
           Expanded(
             child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: _vendedorBusca.length,
+                itemCount: _visitaBusca.length,
                 itemBuilder: (context, index) {
-                  final vendedor = _vendedorBusca[index];
+                  final visita = _visitaBusca[index];
                   return Card(
                     child: ListTile(
-                      title: Text(vendedor.nome),
-                      subtitle: Text("CPF: " +
-                          vendedor.cpf +
-                          "\nEmail: " +
-                          vendedor.email),
+                      title: Text(visita[0]),
+                      subtitle: Text("Checkin feito a " +
+                          visita[1].toString() + " metros do local."),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           GestureDetector(
                             onTap: () {
-                              _navegarParaTela(vendedor, "/RotasPorVendedor");
+                              _mostrarDetalhesVisita(visita);
                             },
                             child: Padding(
                               padding: EdgeInsets.only(right: 0),
                               child: Icon(
-                                Icons.arrow_right_alt,
+                                Icons.info,
                                 color: Color(0xff1e2e3e),
                               ),
                             ),

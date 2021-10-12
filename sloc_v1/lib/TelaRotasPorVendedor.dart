@@ -1,22 +1,20 @@
-import 'package:Sloc/controladores/VendedorControlador.dart';
+import 'package:Sloc/entidades/vendedor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'controladores/RotaControlador.dart';
-import 'entidades/gerente.dart';
 
-class TelaDeRelatorioDeVendedores extends StatefulWidget {
+class TelaDeRotasPorVendedor extends StatefulWidget {
   @override
-  _TelaDeRelatorioDeVendedores createState() => _TelaDeRelatorioDeVendedores();
+  _TelaDeRotasPorVendedor createState() => _TelaDeRotasPorVendedor();
 }
 
-class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
+class _TelaDeRotasPorVendedor extends State<TelaDeRotasPorVendedor> {
   //////////////////////////////////////////////////////////////////
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
 
   //Atributos controladores
-
 
   //Atributos Form
   final _formKey = GlobalKey<FormState>();
@@ -24,35 +22,46 @@ class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
   String nome, email, senha, confSenha;
 
   //Atributos
-  TextEditingController _buscaController = TextEditingController();
-  var _vendedorControlador = VendedorControlador();
   var _rotaControlador = RotaControlador();
-  List _vendedorBusca = [];
-
+  List _rotasBusca = [];
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
   //////////////////////////////////////////////////////////////////
 
-  _buscarVendedores(Gerente gerente) async {
-      List vendedores =
-      await _vendedorControlador.listarPorGerente(gerente.id);
-      return setState(() {
-        _vendedorBusca.addAll(vendedores);
-      });
+  _buscarRotas(Vendedor vendedor) async {
+    List rotas = await _rotaControlador.listarPorVendedor(vendedor.id);
+    return setState(() {
+      _rotasBusca.addAll(rotas.reversed);
+    });
   }
 
   _quantidadeDeRotasFeitas(int vendedor) async {
-    return await _rotaControlador.quantidadePorVendedor(vendedor);
-  }
-  _quantidadeDeProfissionaisVisitados(int vendedor) async {
-    return await _rotaControlador.profissionaisPorVendedor(vendedor);
+    var a = await _rotaControlador.quantidadePorVendedor(vendedor);
+    return a;
   }
 
-  _pegarDados(int vendedor) async{
-    var rotas = await _quantidadeDeRotasFeitas(vendedor);
-    var profissionais = await _quantidadeDeProfissionaisVisitados(vendedor);
-    return [rotas, profissionais];
+  Future<List<Widget>> _pegarVisitas(int rotaId) async {
+    var visitas = await _quantidadeDeRotasFeitas(rotaId);
+    var tamanho = 1;
+    tamanho = visitas.size;
+
+    return List<Widget>.generate(
+      tamanho,
+      (i) => ListTile(
+        title: Text('Título'),
+        subtitle: Text("SUB"),
+      ),
+    );
+  }
+
+  List<Widget> _carregandoLista() {
+    return List<Widget>.generate(
+      1,
+      (i) => ListTile(
+        title: Text('Carregando...'),
+      ),
+    );
   }
 
   void _navegarParaTela(Object objeto, String rota) {
@@ -71,38 +80,36 @@ class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
 
   @override
   Widget build(BuildContext context) {
-
     Map objeto = ModalRoute.of(context).settings.arguments;
-    Gerente gerente = objeto["objeto"];
-    if(_controlador){_buscarVendedores(gerente);};
+    Vendedor vendedor = objeto["objeto"];
+    if (_controlador) {
+      _buscarRotas(vendedor);
+    };
     _controlador = false;
 
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text("Vendedores"),
+          title: Text("Rotas"),
           backgroundColor: Color(0xff1e2e3e),
         ),
         body: Column(children: <Widget>[
           Expanded(
             child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: _vendedorBusca.length,
+                itemCount: _rotasBusca.length,
                 itemBuilder: (context, index) {
-                  final vendedor = _vendedorBusca[index];
+                  final rota = _rotasBusca[index];
                   return Card(
                     child: ListTile(
-                      title: Text(vendedor.nome),
-                      subtitle: Text("CPF: " +
-                          vendedor.cpf +
-                          "\nEmail: " +
-                          vendedor.email),
+                      title: Text("Rota: " + rota[0].toString()),
+                      subtitle: Text("Data/hora: " + rota[1]),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           GestureDetector(
                             onTap: () {
-                              _navegarParaTela(vendedor, "/RotasPorVendedor");
+                              _navegarParaTela(rota[0], "/VisitasPorRotas");
                             },
                             child: Padding(
                               padding: EdgeInsets.only(right: 0),

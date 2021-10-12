@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:Sloc/controladores/ProfissionalControlador.dart';
 import 'package:Sloc/entidades/gerente.dart';
 import 'package:Sloc/entidades/profissional.dart';
-import 'package:Sloc/entidades/rota.dart';
 import 'package:Sloc/entidades/vendedor.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -93,4 +92,28 @@ class RotaControlador {
     return await resposta.stream.bytesToString();
   }
 
+  listarPorVendedor(int vendedor) async {
+    var v = json.encode(vendedor);
+    //faz consulta web
+    var client = http.Client();
+    var resposta = await client.send(http.Request(
+        "POST", Uri.parse(url+"/por-vendedor"))
+      ..headers["Content-Type"] = "application/json"
+      ..body = v);
+
+    //captura o json da resposta http
+    List resultado = json.decode(await resposta.stream.bytesToString());
+    return transformarJsonEmLista(resultado);
+  }
+
+  transformarJsonEmLista(List json){
+    List rotas = [];
+    //varre a lista json convertendo os objetos
+    for (int i = 0; i < json.length; i++) {
+      var id = json[i]["id"];
+      var data = json[i]["data"];
+      rotas.add([id, data]);
+    }
+    return rotas;
+  }
 }

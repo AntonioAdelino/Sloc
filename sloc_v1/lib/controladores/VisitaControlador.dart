@@ -1,12 +1,6 @@
 import 'dart:convert';
 
-import 'package:Sloc/controladores/ProfissionalControlador.dart';
-import 'package:Sloc/entidades/gerente.dart';
-import 'package:Sloc/entidades/profissional.dart';
-import 'package:Sloc/entidades/rota.dart';
-import 'package:Sloc/entidades/vendedor.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 class VisitaControlador {
   String url = "http://192.168.0.113:8080/visitas";
@@ -24,5 +18,35 @@ class VisitaControlador {
         headers: {"Content-Type": "application/json"}, body: requisicao);
     var body = json.decode(resposta.body);
     return body["id"];
+  }
+
+  listarPorRota(int rota) async {
+    var r = json.encode(rota);
+    //faz consulta web
+    var client = http.Client();
+    var resposta = await client.send(http.Request(
+        "POST", Uri.parse(url+"/por-rota"))
+      ..headers["Content-Type"] = "application/json"
+      ..body = r);
+
+    //captura o json da resposta http
+    List resultado = json.decode(await resposta.stream.bytesToString());
+    return transformarJsonEmLista(resultado);
+  }
+
+  transformarJsonEmLista(List resultado){
+    List rotas = [];
+    //varre a lista json convertendo os objetos
+    for (int i = 0; i < resultado.length; i++) {
+      var nomeProfissional = resultado[i]["profissional"]["nome"];
+      var enderecoProfissional = resultado[i]["profissional"]["endereco"];
+      var contatoProfissional = resultado[i]["profissional"]["contato"];
+      var distanciaCheckin = resultado[i]["distanciaCheckin"];
+      if(contatoProfissional == null || contatoProfissional == ""){
+        contatoProfissional = "Não há registros!";
+      }
+      rotas.add([nomeProfissional, distanciaCheckin, enderecoProfissional, contatoProfissional]);
+    }
+    return rotas;
   }
 }
