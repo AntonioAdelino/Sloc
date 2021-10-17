@@ -30,7 +30,10 @@ dependencies:
   google_maps_webservice: ^0.0.16
   http: ^0.12.1
   flutter_polyline_points: ^0.2.2
-  intl: ^0.16.1
+  intl: ^0.17.0
+  date_field: ^2.1.2
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

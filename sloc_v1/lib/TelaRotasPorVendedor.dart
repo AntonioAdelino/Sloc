@@ -1,6 +1,8 @@
 import 'package:Sloc/entidades/vendedor.dart';
+import 'package:date_field/date_field.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'controladores/RotaControlador.dart';
 
@@ -24,6 +26,7 @@ class _TelaDeRotasPorVendedor extends State<TelaDeRotasPorVendedor> {
   //Atributos
   var _rotaControlador = RotaControlador();
   List _rotasBusca = [];
+  DateTime _dataSelecionada;
 
   //////////////////////////////////////////////////////////////////
   //                         MÉTODOS                              //
@@ -68,6 +71,18 @@ class _TelaDeRotasPorVendedor extends State<TelaDeRotasPorVendedor> {
     Navigator.pushNamed(context, rota, arguments: {"objeto": objeto});
   }
 
+  _selecionarRotasPorData(DateTime dataSelecionada) {
+    var data = DateFormat("dd/MM/yyyy").format(dataSelecionada).toString();
+    List rotas = [];
+    for (var item in _rotasBusca) {
+      if (item[1].contains(data)) {
+        rotas.add(item);
+      }
+    }
+    _rotasBusca.clear();
+    _rotasBusca.addAll(rotas);
+  }
+
   //Inicializando o State
   @override
   void initState() {
@@ -84,7 +99,8 @@ class _TelaDeRotasPorVendedor extends State<TelaDeRotasPorVendedor> {
     Vendedor vendedor = objeto["objeto"];
     if (_controlador) {
       _buscarRotas(vendedor);
-    };
+    }
+    ;
     _controlador = false;
 
     return Scaffold(
@@ -94,6 +110,25 @@ class _TelaDeRotasPorVendedor extends State<TelaDeRotasPorVendedor> {
           backgroundColor: Color(0xff1e2e3e),
         ),
         body: Column(children: <Widget>[
+          Padding(
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 5),
+            child: DateTimeField(
+                lastDate: DateTime.now(),
+                mode: DateTimeFieldPickerMode.date,
+                onDateSelected: (DateTime data) {
+                  _selecionarRotasPorData(data);
+                  setState(() {
+                    _dataSelecionada = data;
+                  });
+                },
+                decoration: InputDecoration(
+                  label: Text('Escolha uma data'),
+                  border: OutlineInputBorder(),
+                  suffixIcon: Icon(Icons.event_note, color: Color(0xff1e2e3e)),
+                ),
+                dateFormat: DateFormat("dd/MM/yyyy"),
+                selectedDate: _dataSelecionada),
+          ),
           Expanded(
             child: ListView.builder(
                 shrinkWrap: true,
