@@ -15,18 +15,12 @@ class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
   //                          ATRIBUTOS                           //
   //////////////////////////////////////////////////////////////////
 
-  //Atributos controladores
-
-
   //Atributos Form
-  final _formKey = GlobalKey<FormState>();
   bool _controlador = true;
   String nome, email, senha, confSenha;
 
   //Atributos
-  TextEditingController _buscaController = TextEditingController();
   var _vendedorControlador = VendedorControlador();
-  var _rotaControlador = RotaControlador();
   List _vendedorBusca = [];
 
 
@@ -40,19 +34,6 @@ class _TelaDeRelatorioDeVendedores extends State<TelaDeRelatorioDeVendedores> {
       return setState(() {
         _vendedorBusca.addAll(vendedores);
       });
-  }
-
-  _quantidadeDeRotasFeitas(int vendedor) async {
-    return await _rotaControlador.quantidadePorVendedor(vendedor);
-  }
-  _quantidadeDeProfissionaisVisitados(int vendedor) async {
-    return await _rotaControlador.profissionaisPorVendedor(vendedor);
-  }
-
-  _pegarDados(int vendedor) async{
-    var rotas = await _quantidadeDeRotasFeitas(vendedor);
-    var profissionais = await _quantidadeDeProfissionaisVisitados(vendedor);
-    return [rotas, profissionais];
   }
 
   void _navegarParaTela(Object objeto, String rota) {

@@ -246,7 +246,6 @@ class _IndexGerenteState extends State<IndexGerente> {
       //instanciando lat long
       double latitude = double.parse(profissionais[i][1].latitude);
       double longitude = double.parse(profissionais[i][1].longitude);
-      int idProfissional = profissionais[i][1].id;
 
       //instanciando marcador
       Marker marcador = Marker(
@@ -254,10 +253,6 @@ class _IndexGerenteState extends State<IndexGerente> {
         position: LatLng(latitude, longitude),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         infoWindow: InfoWindow(title: profissionais[i][1].nome),
-        onTap: () async {
-          //int distancia = await _medirDistanciaDoPonto(latitude, longitude);
-          //telaCheckin(context, distancia, idProfissional);
-        },
       );
       //adicionando no mapa
       setState(() {
@@ -802,6 +797,7 @@ class _IndexGerenteState extends State<IndexGerente> {
                     border: InputBorder.none,
                   ),
                   onTap: () {
+                    _polylines.clear();
                     _controleDeSelecao.clear();
                     _controleDeSelecaoBusca.clear();
                     _lugares.clear();

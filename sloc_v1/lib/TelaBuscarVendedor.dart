@@ -1,8 +1,9 @@
 import 'package:Sloc/controladores/VendedorControlador.dart';
+import 'package:Sloc/entidades/vendedor.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:Sloc/dados/dbVendedor.dart';
-import 'package:Sloc/entidades/vendedor.dart';
+
+import 'entidades/gerente.dart';
 
 class TelaBuscarVendedor extends StatefulWidget {
   @override
@@ -29,6 +30,7 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
   TextEditingController _buscaController = TextEditingController();
   var _vendedorControlador = VendedorControlador();
   List<Vendedor> _vendedorBusca = [];
+  var _vendedorTotal = [];
 
   //////////////////////////////////////////////////////////////////
   //                         VALIDAÇÕES                           //
@@ -41,15 +43,6 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
       return "Informe um nome válido";
     } else if (!regExp.hasMatch(value)) {
       return "Informe um nome válido";
-    }
-    return null;
-  }
-
-  String _validarCpf(String value) {
-    if (value.length == 0) {
-      return "Informe o CPF";
-    } else if (value.length != 14) {
-      return "O CPF está incompleto";
     }
     return null;
   }
@@ -155,14 +148,58 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text(
-              "Não encontrado!",
-              textAlign: TextAlign.center,
+            title: Icon(
+              Icons.error,
+              color: Colors.grey,
+              size: 40,
             ),
-            content: Text("O usuário não foi encontrado na base de dados."),
+            content: Text("Usuário não encontrado! Verifique os dados e tente novamente."),
             actions: <Widget>[
               FlatButton(
                 color: Colors.grey,
+                textColor: Colors.white,
+                onPressed: () => Navigator.pop(context),
+                child: Text("Ok"),
+              ),
+            ],
+          );
+        });
+  }
+
+  _mostrarPopupSucesso() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Icon(
+              Icons.check_circle,
+              color: Colors.green,
+              size: 40,
+            ),
+            content: Text("Operação realizada com sucesso!"),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.green,
+                textColor: Colors.white,
+                onPressed: () => Navigator.pop(context),
+                child: Text("Ok"),
+              ),
+            ],
+          );
+        });
+  }
+
+  _mostrarPopupFalha() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Icon(Icons.error, color: Colors.red, size: 40),
+            content: Text(
+                "Erro ao realizar a operação! Verifique a sua conexão e tente novamente mais tarde."),
+            actions: <Widget>[
+              FlatButton(
+                color: Colors.red,
                 textColor: Colors.white,
                 onPressed: () => Navigator.pop(context),
                 child: Text("Ok"),
@@ -178,16 +215,16 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
 
   _buscarVendedor(String vendedorNome) async {
     _vendedorBusca.clear();
-    List<Vendedor> vendedores =
-        await _vendedorControlador.buscarVendedor(vendedorNome);
-
-    if (vendedores.isEmpty) {
+    for (var vendedor in _vendedorTotal) {
+      if (vendedor.nome.contains(vendedorNome)) {
+        setState(() {
+          _vendedorBusca.add(vendedor);
+        });
+      }
+    }
+    if(_vendedorBusca.isEmpty){
       _naoEncontrado();
     }
-
-    return setState(() {
-      _vendedorBusca.addAll(vendedores);
-    });
   }
 
   _alterarGerente(int id, String cpf, int gerente) async {
@@ -198,7 +235,12 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
     Vendedor vendedor = Vendedor(nome, cpf, email, senha);
     vendedor.id = id;
     vendedor.gerente = gerente;
-    int resultado = await _vendedorControlador.alterar(vendedor);
+    int codigo = await _vendedorControlador.alterar(vendedor);
+    if (codigo == 200) {
+      _mostrarPopupSucesso();
+    } else {
+      _mostrarPopupFalha();
+    }
   }
 
   _exibirTelaAlteracao({Vendedor vendedor}) {
@@ -321,13 +363,16 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
       _alterarGerente(id, cpf, idGerente);
       _buscarVendedor(_buscaController.text);
       Navigator.pop(context);
-
     } else {
       // erro de validação
       setState(() {
         _validate = true;
       });
     }
+  }
+
+  _buscarVendedores(Gerente gerente) async {
+    _vendedorTotal = await _vendedorControlador.listarPorGerente(gerente.id);
   }
 
   //Inicializando o State
@@ -342,6 +387,10 @@ class _TelaCuscarVendedorState extends State<TelaBuscarVendedor> {
 
   @override
   Widget build(BuildContext context) {
+    Map objeto = ModalRoute.of(context).settings.arguments;
+    Gerente gerente = objeto["objeto"];
+    _buscarVendedores(gerente);
+
     return Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(

@@ -780,6 +780,10 @@ class _IndexVendedorState extends State<IndexVendedor> {
     return distanciaInt;
   }
 
+  void _navegarParaTela(Object objeto, String rota) {
+    Navigator.pushNamed(context, rota, arguments: {"objeto": objeto});
+  }
+
   void _sair() {
     DbVendedor dbVendedor = DbVendedor();
     dbVendedor.deletarVendedores();
@@ -836,6 +840,16 @@ class _IndexVendedorState extends State<IndexVendedor> {
                   style: TextStyle(fontSize: 40.0, color: Color(0xff1e2e3e)),
                 ),
               ),
+            ),
+            ListTile(
+              leading: Icon(Icons.assessment, color: Color(0xff1e2e3e)),
+              title: Text(
+                'Ver meu histórico de rotas',
+                style: TextStyle(fontSize: 14, color: Color(0xff1e2e3e)),
+              ),
+              onTap: () {
+                _navegarParaTela(vendedor, "/RotasPorVendedor");
+              },
             ),
             ListTile(
               leading: Icon(Icons.logout, color: Color(0xff1e2e3e)),

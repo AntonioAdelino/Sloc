@@ -52,8 +52,6 @@ class _TelaDeRotasPorVendedor extends State<TelaDeRotasPorVendedor> {
   _listarTodasAsRotas() {
     _rotasBusca.clear();
     _rotasBusca.addAll(_todasAsRotas);
-    var a = _rotasBusca;
-    var k = 0;
   }
 
   //Inicializando o State

@@ -81,13 +81,17 @@ class VendedorControlador {
 
   Future alterar(Vendedor vendedor) async {
     //converte vendedor para json
-    var v = json.encode(vendedor.toMap());
+    var requisicao = "{\"id\":${vendedor.id.toString()},"+
+        "\"nome\": \"${vendedor.nome}\"," +
+        "\"cpf\": \"${vendedor.cpf}\"," +
+        "\"email\": \"${vendedor.email}\","+
+        "\"senha\": \"${vendedor.senha}\","+
+        "\"idGerente\": ${vendedor.gerente.toString()}}";
     //faz consulta web
     var resposta = await http.put(
         url,
         headers: {"Content-Type": "application/json"},
-        body: v);
-
+        body: requisicao);
     return resposta.statusCode;
   }
 
